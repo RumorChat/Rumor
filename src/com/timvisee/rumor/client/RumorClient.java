@@ -8,6 +8,6 @@ public class RumorClient {
      */
     public static void main(String[] args) {
         // Start the core
-        new ClientCore();
+        new CoreClient();
     }
 }

@@ -35,7 +35,7 @@ public class Connector {
         Profiler conProf = new Profiler(true);
 
         // Setting up a client to the server, show a status message
-        ClientCore.getLogger().info("Connecting to " + this.host + ":" + this.port + "...");
+        CoreClient.getLogger().info("Connecting to " + this.host + ":" + this.port + "...");
 
         StringBuffer instr = new StringBuffer();
 
@@ -55,7 +55,7 @@ public class Connector {
             conProf.stop();
 
             // Connected successfully, show a status message
-            ClientCore.getLogger().info("Connected to server, took " + conProf.getDurationString() + "!");
+            CoreClient.getLogger().info("Connected to server, took " + conProf.getDurationString() + "!");
 
             // TODO: Authenticate, validate the client...
 
@@ -92,7 +92,7 @@ public class Connector {
             return false;
         }
 
-        ClientCore.getLogger().info("Disconnected from server!");
+        CoreClient.getLogger().info("Disconnected from server!");
 
         // Everything seems to be fine, return true
         return true;

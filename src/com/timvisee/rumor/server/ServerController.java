@@ -1,5 +1,6 @@
 package com.timvisee.rumor.server;
 
+import com.timvisee.rumor.Core;
 import com.timvisee.rumor.Defaults;
 import com.timvisee.rumor.Profiler;
 import com.timvisee.rumor.server.client.ClientAccepter;
@@ -18,7 +19,7 @@ public class ServerController {
         Profiler serverProf = new Profiler(true);
 
         // Starting server, show a status message
-        ServerCore.getLogger().info("Starting " + Defaults.APP_NAME + " server...");
+        CoreServer.getLogger().info("Starting " + Defaults.APP_NAME + " server...");
 
         // Set up the client manager
         this.conMan = new ClientManager();
@@ -29,9 +30,9 @@ public class ServerController {
 
         // Stop the server start profiler
         serverProf.stop();
-
+        
         // Server started, show a status message
-        ServerCore.getLogger().info(Defaults.APP_NAME + " server started, took " + serverProf.getDurationString() + "!");
+        CoreServer.getLogger().info(Defaults.APP_NAME + " server started, took " + serverProf.getDurationString() + "!");
     }
 
     /**

@@ -8,6 +8,6 @@ public class RumorServer {
      */
     public static void main(String[] args) {
         // Start the core
-        new ServerCore();
+        new CoreServer();
     }
 }
