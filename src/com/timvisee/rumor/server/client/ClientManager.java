@@ -5,7 +5,7 @@ import java.util.List;
 
 public class ClientManager {
 
-    private List<Client> cons = new ArrayList<Client>();
+    private List<ClientConnector> cons = new ArrayList<ClientConnector>();
 
     /**
      * Constructor
@@ -16,7 +16,7 @@ public class ClientManager {
      * Return the list of connected clients
      * @return List of connected clients
      */
-    public List<Client> getClients() {
+    public List<ClientConnector> getClients() {
         return this.cons;
     }
 
@@ -30,14 +30,12 @@ public class ClientManager {
 
     /**
      * Register a new client
-     * @param c Client instance
+     * @param c Client connector instance
      * @return True if the client was registered successfully, false if failed.
      */
-    public boolean registerClient(Client c) {
-        // Register the client
+    public boolean registerClient(ClientConnector c) {
+        // Register the client, return the result
         this.cons.add(c);
-
-        // Everything seems to be fine, return true
         return true;
     }
 }

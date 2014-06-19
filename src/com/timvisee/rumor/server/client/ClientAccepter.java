@@ -65,7 +65,7 @@ public class ClientAccepter {
                         // TODO: Make sure the client is valid
 
                         // Create a client instance, and register the client
-                        Client c = new Client(client);
+                        ClientConnector c = new ClientConnector(client);
                         conMan.registerClient(c);
 
                         // A client has connected, show a status message

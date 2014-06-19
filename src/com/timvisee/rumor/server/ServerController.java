@@ -37,7 +37,7 @@ public class ServerController {
 
     /**
      * Get the client manager instance
-     * @return Connector manager instance
+     * @return Connection manager instance
      */
     public ClientManager getConnectionManager() {
         return this.conMan;

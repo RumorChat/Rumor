@@ -2,7 +2,7 @@ package com.timvisee.rumor.server.client;
 
 import java.net.Socket;
 
-public class Client {
+public class ClientConnector {
 
     private Socket s;
 
@@ -10,7 +10,7 @@ public class Client {
      * Constructor
      * @param s Client's socket instance
      */
-    public Client(Socket s) {
+    public ClientConnector(Socket s) {
         this.s = s;
     }
 
