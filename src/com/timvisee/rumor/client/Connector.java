@@ -31,10 +31,10 @@ public class Connector {
     }
 
     public boolean connect() {
-        // Profile the connection
+        // Profile the client
         Profiler conProf = new Profiler(true);
 
-        // Setting up a connection to the server, show a status message
+        // Setting up a client to the server, show a status message
         ClientCore.getLogger().info("Connecting to " + this.host + ":" + this.port + "...");
 
         StringBuffer instr = new StringBuffer();
@@ -51,13 +51,13 @@ public class Connector {
             BufferedOutputStream bos = new BufferedOutputStream(connection.getOutputStream());
             OutputStreamWriter osw = new OutputStreamWriter(bos, "US-ASCII");
 
-            // Stop the connection profiler
+            // Stop the client profiler
             conProf.stop();
 
             // Connected successfully, show a status message
             ClientCore.getLogger().info("Connected to server, took " + conProf.getDurationString() + "!");
 
-            // TODO: Authenticate, validate the connection...
+            // TODO: Authenticate, validate the client...
 
             /*Packet p = new Packet(1, 2);
             p.appendString("test" + ((char) 2));

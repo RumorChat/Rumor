@@ -35,7 +35,7 @@ public class ClientCore {
         // Initialization finished, show a message
         ClientCore.getLogger().info("Successfully initialized, took " + initProf.getDurationString() + "! Cave Johnson here!");
 
-        // TODO: Execute a test connection
+        // TODO: Execute a test client
         Connector c = new Connector("localhost");
         c.connect();
 

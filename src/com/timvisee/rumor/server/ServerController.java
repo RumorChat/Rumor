@@ -2,8 +2,8 @@ package com.timvisee.rumor.server;
 
 import com.timvisee.rumor.Defaults;
 import com.timvisee.rumor.Profiler;
-import com.timvisee.rumor.server.connection.ClientAccepter;
-import com.timvisee.rumor.server.connection.ClientManager;
+import com.timvisee.rumor.server.client.ClientAccepter;
+import com.timvisee.rumor.server.client.ClientManager;
 
 public class ServerController {
 
@@ -20,7 +20,7 @@ public class ServerController {
         // Starting server, show a status message
         ServerCore.getLogger().info("Starting " + Defaults.APP_NAME + " server...");
 
-        // Set up the connection manager
+        // Set up the client manager
         this.conMan = new ClientManager();
 
         // Set up the client accepter
@@ -35,7 +35,7 @@ public class ServerController {
     }
 
     /**
-     * Get the connection manager instance
+     * Get the client manager instance
      * @return Connector manager instance
      */
     public ClientManager getConnectionManager() {
