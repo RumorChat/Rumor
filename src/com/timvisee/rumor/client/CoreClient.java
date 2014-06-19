@@ -33,7 +33,7 @@ public class CoreClient extends Core {
         // Initialization finished, show a message
         CoreClient.getLogger().info("Successfully initialized, took " + initProf.getDurationString() + "! Cave Johnson here!");
 
-        // TODO: Execute a test client
+        // TODO: Perform a test connection
         Connector c = new Connector("localhost");
         c.connect();
 

@@ -30,7 +30,7 @@ public class ClientAccepter {
     }
 
     /**
-     * Start the  client accepter
+     * Start the client accepter
      * @return True if the accepter has started, false otherwise. Also returns true if the accepter was active already.
      */
     public boolean start() {

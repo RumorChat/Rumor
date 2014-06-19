@@ -31,10 +31,10 @@ public class Connector {
     }
 
     public boolean connect() {
-        // Profile the client
+        // Profile the connection process
         Profiler conProf = new Profiler(true);
 
-        // Setting up a client to the server, show a status message
+        // Setting up a connection to the server, show a status message
         CoreClient.getLogger().info("Connecting to " + this.host + ":" + this.port + "...");
 
         StringBuffer instr = new StringBuffer();
@@ -51,7 +51,7 @@ public class Connector {
             BufferedOutputStream bos = new BufferedOutputStream(connection.getOutputStream());
             OutputStreamWriter osw = new OutputStreamWriter(bos, "US-ASCII");
 
-            // Stop the client profiler
+            // Stop the connection profiler
             conProf.stop();
 
             // Connected successfully, show a status message

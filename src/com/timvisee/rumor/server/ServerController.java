@@ -24,13 +24,13 @@ public class ServerController {
         // Set up the client manager
         this.conMan = new ClientManager();
 
-        // Set up the client accepter
+        // Set up the client accepter and start accepting clients
         this.clientAccepter = new ClientAccepter(this.conMan);
         this.clientAccepter.start();
 
         // Stop the server start profiler
         serverProf.stop();
-        
+
         // Server started, show a status message
         CoreServer.getLogger().info(Defaults.APP_NAME + " server started, took " + serverProf.getDurationString() + "!");
     }
