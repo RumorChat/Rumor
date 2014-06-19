@@ -1,15 +1,12 @@
 package com.timvisee.rumor.client;
 
+import com.timvisee.rumor.Defaults;
 import com.timvisee.rumor.Profiler;
 import com.timvisee.rumor.log.Logger;
 
-import java.io.*;
-import java.net.InetAddress;
-import java.net.Socket;
-
 public class ClientCore {
 
-     private static Logger log = new Logger(true, RumorClient.APP_DEBUG);
+     private static Logger log = new Logger(true, Defaults.APP_DEBUG);
 
      /**
      * Constructor
@@ -28,7 +25,7 @@ public class ClientCore {
         Profiler initProf = new Profiler(true);
 
         // Show an initialization message
-        ClientCore.getLogger().info("Initializing " + RumorClient.APP_CLIENT_NAME + " v" + RumorClient.APP_VERSION_NAME + " (" + RumorClient.APP_VERSION_CODE + ")...");
+        ClientCore.getLogger().info("Initializing " + Defaults.APP_CLIENT_NAME + " v" + Defaults.APP_VERSION_NAME + " (" + Defaults.APP_VERSION_CODE + ")...");
 
         // TODO: Initialization...
 

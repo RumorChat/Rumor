@@ -1,11 +1,12 @@
 package com.timvisee.rumor.server;
 
+import com.timvisee.rumor.Defaults;
 import com.timvisee.rumor.Profiler;
 import com.timvisee.rumor.log.Logger;
 
 public class ServerCore {
 
-    private static Logger log = new Logger(true, RumorServer.APP_DEBUG);
+    private static Logger log = new Logger(true, Defaults.APP_DEBUG);
 
     private ServerController sc;
 
@@ -26,7 +27,7 @@ public class ServerCore {
         Profiler initProf = new Profiler(true);
 
         // Show an initialization message
-        ServerCore.getLogger().info("Initializing " + RumorServer.APP_SERVER_NAME + " v" + RumorServer.APP_VERSION_NAME + " (" + RumorServer.APP_VERSION_CODE + ")...");
+        ServerCore.getLogger().info("Initializing " + Defaults.APP_SERVER_NAME + " v" + Defaults.APP_VERSION_NAME + " (" + Defaults.APP_VERSION_CODE + ")...");
 
         // TODO: Initialization...
 

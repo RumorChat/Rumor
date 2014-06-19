@@ -1,6 +1,6 @@
 package com.timvisee.rumor.server.connection;
 
-import com.timvisee.rumor.server.RumorServer;
+import com.timvisee.rumor.Defaults;
 import com.timvisee.rumor.server.ServerCore;
 
 import java.net.ServerSocket;
@@ -39,11 +39,11 @@ public class ConnectionHandler implements Runnable {
     @Override
     public void run() {
         try {
-            ServerSocket serverSock = new ServerSocket(RumorServer.APP_SERVER_PORT);
+            ServerSocket serverSock = new ServerSocket(Defaults.APP_SERVER_PORT);
 
             while(true) {
                 // Wait for a client to connect, show a status message
-                ServerCore.getLogger().debug("Waiting for " + RumorServer.APP_NAME + " client to connect...");
+                ServerCore.getLogger().debug("Waiting for " + Defaults.APP_NAME + " client to connect...");
 
                 // Accept the next connection
                 Socket client = serverSock.accept();
@@ -56,7 +56,7 @@ public class ConnectionHandler implements Runnable {
 
                 // A client has connected, show a status message
                 // TODO: Improve this status message!
-                ServerCore.getLogger().info("A " + RumorServer.APP_NAME + " client has connected successfully (Accepted " + conMan.getAcceptedCount() + " connections)!");
+                ServerCore.getLogger().info("A " + Defaults.APP_NAME + " client has connected successfully (Accepted " + conMan.getAcceptedCount() + " connections)!");
             }
 
         } catch (Exception e) {

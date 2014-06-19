@@ -1,5 +1,6 @@
 package com.timvisee.rumor.client;
 
+import com.timvisee.rumor.Defaults;
 import com.timvisee.rumor.Profiler;
 
 import java.io.*;
@@ -16,7 +17,7 @@ public class Connector {
      * @param host Server host
      */
     public Connector(String host) {
-        this(host, RumorClient.APP_SERVER_PORT);
+        this(host, Defaults.APP_SERVER_PORT);
     }
 
     /**
