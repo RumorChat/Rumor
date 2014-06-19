@@ -41,14 +41,18 @@ public class Profiler {
     }
 
     /**
-     * Return the duration in milliseconds
-     * @return Duration in milliseconds
+     * Return the duration in milliseconds..
+     * @param stop True to stop the profiler if it's active.
+     * @return Duration in milliseconds.
      */
-    public long getDuration() {
-        // Restart the profiler if it's currently active
+    public long getDuration(boolean stop) {
+        // Stop the profiler if it's currently active
         if(isActive()) {
             stop();
-            start();
+
+            // Check whether we should restart the profiler
+            if(!stop)
+                start();
         }
 
         // Return the duration
@@ -56,11 +60,20 @@ public class Profiler {
     }
 
     /**
-     * Return the duration as readable text
-     * @return Duration as readable text
+     * Return the duration in milliseconds. Calling this method doesn't stop the profiler if it's active.
+     * @return Duration in milliseconds
      */
-    public String getDurationString() {
-        long duration = getDuration();
+    public long getDuration() {
+        return getDuration(false);
+    }
+
+    /**
+     * Return the duration as readable text.
+     * @param stop True to stop the profiler if it's active.
+     * @return Duration as readable text.
+     */
+    public String getDurationString(boolean stop) {
+        long duration = getDuration(stop);
 
         // Return durations which are 0 or shorter
         if(duration <= 0)
@@ -72,6 +85,14 @@ public class Profiler {
 
         // Convert and return the duration as seconds
         return (duration / 1000) + " s";
+    }
+
+    /**
+     * Return the duration as readable text. Calling this method doesn't stop the profiler if it's active.
+     * @return Duration as readable text.
+     */
+    public String getDurationString() {
+        return getDurationString(false);
     }
 
     /**

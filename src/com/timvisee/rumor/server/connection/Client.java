@@ -2,21 +2,21 @@ package com.timvisee.rumor.server.connection;
 
 import java.net.Socket;
 
-public class Connection {
+public class Client {
 
     private Socket s;
 
     /**
      * Constructor
-     * @param s Socket instance
+     * @param s Client's socket instance
      */
-    public Connection(Socket s) {
+    public Client(Socket s) {
         this.s = s;
     }
 
     /**
-     * Get the socket instance
-     * @return Socket instance
+     * Get the client's socket instance
+     * @return Client's socket instance
      */
     public Socket getSocket() {
         return this.s;

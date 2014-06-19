@@ -2,16 +2,13 @@ package com.timvisee.rumor.server;
 
 import com.timvisee.rumor.Defaults;
 import com.timvisee.rumor.Profiler;
-import com.timvisee.rumor.server.connection.ConnectionHandler;
-import com.timvisee.rumor.server.connection.ConnectionManager;
+import com.timvisee.rumor.server.connection.ClientAccepter;
+import com.timvisee.rumor.server.connection.ClientManager;
 
 public class ServerController {
 
-    private ConnectionManager conMan;
-    private ConnectionHandler conList;
-
-    // TODO: Should we do this differently?
-    private Thread conListThread;
+    private ClientManager conMan;
+    private ClientAccepter clientAccepter;
 
     /**
      * Constructor
@@ -24,13 +21,11 @@ public class ServerController {
         ServerCore.getLogger().info("Starting " + Defaults.APP_NAME + " server...");
 
         // Set up the connection manager
-        this.conMan = new ConnectionManager();
+        this.conMan = new ClientManager();
 
-        // Set up the connection listener
-        // TODO: Should we do this differently?
-        conList = new ConnectionHandler(this.conMan);
-        this.conListThread = new Thread(conList);
-        this.conListThread.start();
+        // Set up the client accepter
+        this.clientAccepter = new ClientAccepter(this.conMan);
+        this.clientAccepter.start();
 
         // Stop the server start profiler
         serverProf.stop();
@@ -43,15 +38,15 @@ public class ServerController {
      * Get the connection manager instance
      * @return Connector manager instance
      */
-    public ConnectionManager getConnectionManager() {
+    public ClientManager getConnectionManager() {
         return this.conMan;
     }
 
     /**
-     * Get the connection listener instance
-     * @return Connector listener instance
+     * Get the client accepter instance
+     * @return Client accepter instance
      */
-    public ConnectionHandler getConnectionListener() {
-        return this.conList;
+    public ClientAccepter getClientAccepter() {
+        return this.clientAccepter;
     }
 }
