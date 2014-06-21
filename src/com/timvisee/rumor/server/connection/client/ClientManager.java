@@ -1,4 +1,4 @@
-package com.timvisee.rumor.server.client;
+package com.timvisee.rumor.server.connection.client;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ public class ClientManager {
 
     /**
      * Register a new client
-     * @param c Client connector instance
+     * @param c Client connection instance
      * @return True if the client was registered successfully, false if failed.
      */
     public boolean registerClient(ClientConnector c) {

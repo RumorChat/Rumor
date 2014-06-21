@@ -1,4 +1,4 @@
-package com.timvisee.rumor.client.connector;
+package com.timvisee.rumor.client.connection.server;
 
 import com.timvisee.rumor.Defaults;
 import com.timvisee.rumor.client.CoreClient;
@@ -36,7 +36,7 @@ public class ServerConnectionManager {
             return true;
         }
 
-        // Set up the server connector
+        // Set up the server connection
         this.con = new ServerConnector(host, port);
 
         // Return true if we successfully connected to the server
@@ -48,7 +48,7 @@ public class ServerConnectionManager {
      * @return True if there's an active connection to the server, false otherwise
      */
     public boolean isConnected() {
-        // Make sure a server connector is available
+        // Make sure a server connection is available
         if(this.con == null)
             return false;
 

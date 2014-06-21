@@ -1,4 +1,4 @@
-package com.timvisee.rumor.client.connector;
+package com.timvisee.rumor.client.connection.server;
 
 import com.timvisee.rumor.Defaults;
 import com.timvisee.rumor.Profiler;

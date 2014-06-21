@@ -1,10 +1,9 @@
 package com.timvisee.rumor.server;
 
-import com.timvisee.rumor.Core;
 import com.timvisee.rumor.Defaults;
 import com.timvisee.rumor.Profiler;
-import com.timvisee.rumor.server.client.ClientAccepter;
-import com.timvisee.rumor.server.client.ClientManager;
+import com.timvisee.rumor.server.connection.client.ClientAccepter;
+import com.timvisee.rumor.server.connection.client.ClientManager;
 
 public class ServerController {
 

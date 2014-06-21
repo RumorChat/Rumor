@@ -1,4 +1,4 @@
-package com.timvisee.rumor.server.client;
+package com.timvisee.rumor.server.connection.client;
 
 import java.net.Socket;
 
