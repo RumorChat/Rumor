@@ -1,14 +1,14 @@
 package com.timvisee.rumor.server;
 
 import com.timvisee.rumor.Defaults;
-import com.timvisee.rumor.Profiler;
-import com.timvisee.rumor.server.connection.client.ClientAccepter;
-import com.timvisee.rumor.server.connection.client.ClientManager;
+import com.timvisee.rumor.server.connection.ClientAcceptor;
+import com.timvisee.rumor.server.connection.session.SessionManager;
+import com.timvisee.rumor.util.Profiler;
 
 public class ServerController {
 
-    private ClientManager conMan;
-    private ClientAccepter clientAccepter;
+    private SessionManager sessionManager;
+    private ClientAcceptor clientAccepter;
 
     /**
      * Constructor.
@@ -47,11 +47,11 @@ public class ServerController {
         // Starting server, show a status message
         CoreServer.getLogger().info("Starting " + Defaults.APP_NAME + " server...");
 
-        // Set up the client manager
-        this.conMan = new ClientManager();
+        // Set up the session manager
+        this.sessionManager = new SessionManager();
 
-        // Set up the client accepter and start accepting clients
-        this.clientAccepter = new ClientAccepter(this.conMan);
+        // Set up the session accepter and start accepting clients
+        this.clientAccepter = new ClientAcceptor(this.sessionManager);
         if(!this.clientAccepter.start()) {
             // Stop the server start profiler
             serverProf.stop();
@@ -74,11 +74,11 @@ public class ServerController {
      * @return True if the server is started, false otherwise.
      */
     public boolean isStarted() {
-        // Make sure the client accepter is available
+        // Make sure the session accepter is available
         if(this.clientAccepter == null)
             return false;
 
-        // Check whether the client accepter is active,
+        // Check whether the session accepter is active,
         return this.clientAccepter.isActive();
     }
 
@@ -93,7 +93,7 @@ public class ServerController {
             return true;
         }
 
-        // Stop the client accepter
+        // Stop the session accepter
         this.clientAccepter.stop();
 
         // TODO: Disconnect all connected clients
@@ -104,18 +104,18 @@ public class ServerController {
     }
 
     /**
-     * Get the client manager instance
-     * @return Connection manager instance
+     * Get the session manager instance
+     * @return Session manager instance
      */
-    public ClientManager getConnectionManager() {
-        return this.conMan;
+    public SessionManager getSessionManager() {
+        return this.sessionManager;
     }
 
     /**
-     * Get the client accepter instance
+     * Get the session accepter instance
      * @return Client accepter instance
      */
-    public ClientAccepter getClientAccepter() {
+    public ClientAcceptor getClientAccepter() {
         return this.clientAccepter;
     }
 }

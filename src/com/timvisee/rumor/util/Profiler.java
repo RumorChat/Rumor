@@ -1,4 +1,4 @@
-package com.timvisee.rumor;
+package com.timvisee.rumor.util;
 
 public class Profiler {
 

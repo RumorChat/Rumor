@@ -2,7 +2,7 @@ package com.timvisee.rumor.client;
 
 import com.timvisee.rumor.Core;
 import com.timvisee.rumor.Defaults;
-import com.timvisee.rumor.Profiler;
+import com.timvisee.rumor.util.Profiler;
 import com.timvisee.rumor.client.connection.server.ServerConnector;
 
 public class CoreClient extends Core {

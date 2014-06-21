@@ -1,7 +1,7 @@
 package com.timvisee.rumor.client.connection.server;
 
 import com.timvisee.rumor.Defaults;
-import com.timvisee.rumor.Profiler;
+import com.timvisee.rumor.util.Profiler;
 import com.timvisee.rumor.client.CoreClient;
 
 import java.io.*;
@@ -73,7 +73,7 @@ public class ServerConnector {
             // Connected successfully, show a status message
             CoreClient.getLogger().info("Connected to server, took " + conProf.getDurationString() + "!");
 
-            // TODO: Authenticate, validate the client...
+            // TODO: Authenticate, validate the session...
 
             /*Packet p = new Packet(1, 2);
             p.appendString("test" + ((char) 2));

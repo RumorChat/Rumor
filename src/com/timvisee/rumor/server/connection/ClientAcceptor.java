@@ -1,16 +1,17 @@
-package com.timvisee.rumor.server.connection.client;
+package com.timvisee.rumor.server.connection;
 
 import com.timvisee.rumor.Defaults;
 import com.timvisee.rumor.server.CoreServer;
+import com.timvisee.rumor.server.connection.session.SessionManager;
 
 import java.io.IOException;
 import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class ClientAccepter {
+public class ClientAcceptor {
 
-    private ClientManager conMan;
+    private SessionManager sessionMan;
 
     private ServerSocket sock;
     private Thread acceptanceThread;
@@ -19,23 +20,23 @@ public class ClientAccepter {
      * Constructor
      * @param conMan Client manager instance
      */
-    public ClientAccepter(ClientManager conMan) {
-        this.conMan = conMan;
+    public ClientAcceptor(SessionManager conMan) {
+        this.sessionMan = conMan;
     }
 
     /**
-     * Get the client manager instance
+     * Get the session manager instance
      */
-    public ClientManager getConnectionManager() {
-        return this.conMan;
+    public SessionManager getClientManager() {
+        return this.sessionMan;
     }
 
     /**
-     * Start the client accepter
-     * @return True if the accepter has started, false otherwise. Also returns true if the accepter was active already.
+     * Start the client acceptor
+     * @return True if the acceptor has started, false otherwise. Also returns true if the acceptor was active already.
      */
     public boolean start() {
-        // Make sure the accepter isn't active already
+        // Make sure the acceptor isn't active already
         if(isActive())
             return true;
 
@@ -54,7 +55,7 @@ public class ClientAccepter {
             return false;
         }
 
-        // Start the client acceptance thread
+        // Start the session acceptance thread
         this.acceptanceThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -63,17 +64,16 @@ public class ClientAccepter {
                         // Wait for a client to connect, show a status message
                         CoreServer.getLogger().debug("Waiting for " + Defaults.APP_NAME + " client to connect...");
 
-                        // Accept the next client
-                        Socket client = null;
-                        client = sock.accept();
+                        // Accept the next session
+                        Socket client = sock.accept();
 
-                        // TODO: Make sure the client is valid
+                        // TODO: Make sure the session is valid
+                        // TODO: Authenticate
 
-                        // Create a client instance, and register the client
-                        ClientConnector c = new ClientConnector(client);
-                        conMan.registerClient(c);
+                        // Create a session for the client
+                        sessionMan.createSession(client);
 
-                        // A client has connected, show a status message
+                        // A session has connected, show a status message
                         // TODO: Improve this status message!
                         CoreServer.getLogger().info("A " + Defaults.APP_NAME + " client has successfully connected!");
 
