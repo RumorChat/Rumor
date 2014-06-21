@@ -10,6 +10,12 @@ public class Logger {
     private boolean enabled = true;
     private boolean debug = false;
 
+    private boolean hideInfo = true;
+    private boolean hideWarn = true;
+    private boolean hideErr = true;
+    private boolean hideDebug = true;
+    private boolean showAll = true;
+
     /**
      * Constructor
      */
@@ -32,7 +38,20 @@ public class Logger {
      * @param msg Info message to log
      */
     public void info(String msg) {
-        this.log(INFO_PREFIX, msg);
+        if(!this.hideInfo || this.showAll)
+            this.log(INFO_PREFIX, msg);
+    }
+
+    /**
+     * Log an info message
+     * @param msg Info message to log as a string
+     */
+    public void info(Object msg) {
+        // Make sure the object is set
+        if(msg == null)
+            info("null");
+        else
+            info(msg.toString());
     }
 
     /**
@@ -40,7 +59,20 @@ public class Logger {
      * @param msg Warning message to log
      */
     public void warning(String msg) {
-        this.log(WARNING_PREFIX, msg);
+        if(!this.hideWarn || this.showAll)
+            this.log(WARNING_PREFIX, msg);
+    }
+
+    /**
+     * Log an warning message
+     * @param msg Warning message to log as a string
+     */
+    public void warning(Object msg) {
+        // Make sure the object is set
+        if(msg == null)
+            warning("null");
+        else
+            warning(msg.toString());
     }
 
     /**
@@ -48,13 +80,42 @@ public class Logger {
      * @param msg Error message to log
      */
     public void error(String msg) {
-        this.log(ERROR_PREFIX, msg);
+        if(!this.hideErr || this.showAll)
+            this.log(ERROR_PREFIX, msg);
     }
 
+    /**
+     * Log an error message
+     * @param msg Error message to log as a string
+     */
+    public void error(Object msg) {
+        // Make sure the object is set
+        if(msg == null)
+            error("null");
+        else
+            error(msg.toString());
+    }
+
+    /**
+     * Log a debug message
+     * @param msg Debug message to log
+     */
     public void debug(String msg) {
         // Make sure debug messages are enabled
-        if(debug)
+        if(debug && (!this.hideDebug || this.showAll))
             this.log(DEBUG_PREFIX, msg);
+    }
+
+    /**
+     * Log a debug message
+     * @param msg Debug message to log as a string
+     */
+    public void debug(Object msg) {
+        // Make sure the object is set
+        if(msg == null)
+            debug("null");
+        else
+            debug(msg.toString());
     }
 
     /**
@@ -109,5 +170,87 @@ public class Logger {
      */
     public void setDebug(boolean debug) {
         this.debug = debug;
+    }
+
+    /**
+     * Check whether info messages are hidden or not.
+     * @return True if info messages are hidden, false if not.
+     */
+    public boolean getHideInfo() {
+        return this.hideInfo;
+    }
+
+    /**
+     * Set whether info messages should be hidden or not.
+     * @param hideInfo True to hide info messages, false to unhide them.
+     */
+    public void setHideInfo(boolean hideInfo) {
+        this.hideInfo = hideInfo;
+    }
+
+    /**
+     * Check whether warning messages are hidden or not.
+     * @return True if warning messages are hidden, false if not.
+     */
+    public boolean getHideWarnings() {
+        return this.hideWarn;
+    }
+
+    /**
+     * Set whether warning messages should be hidden or not.
+     * @param hideWarn True to hide warning messages, false to unhide them.
+     */
+    public void setHideWarnings(boolean hideWarn) {
+        this.hideWarn = hideWarn;
+    }
+
+    /**
+     * Check whether error messages are hidden or not.
+     * @return True if error messages are hidden, false if not.
+     */
+    public boolean getHideErrors() {
+        return this.hideErr;
+    }
+
+    /**
+     * Set whether error messages should be hidden or not.
+     * @param hideErr True to hide error messages, false to unhide them.
+     */
+    public void setHideErrors(boolean hideErr) {
+        this.hideErr = hideErr;
+    }
+
+    /**
+     * Check whether debug messages are hidden or not.
+     * @return True if debug messages are hidden, false if not.
+     */
+    public boolean getHideDebug() {
+        return this.hideDebug;
+    }
+
+    /**
+     * Set whether debug messages should be hidden or not.
+     * @param hideDebug True to hide debug messages, false to unhide them.
+     */
+    public void setHideDebug(boolean hideDebug) {
+        this.hideDebug = hideDebug;
+    }
+
+    /**
+     * Check whether all kind of messages are being shown, even if some hiders are enabled.
+     * The logger has to be enabled, or else all messages are suppressed anyway.
+     * @return True if all kind of messages are shown.
+     */
+    public boolean getShowAll() {
+        return this.showAll;
+    }
+
+    /**
+     * Set whether all kind of messages should be shown, even if some hiders are enabled.
+     * The logger has to be enabled, or else all messages are suppressed anyway.
+     * @param showAll True to show all kind of messages even if hiders are enabled.
+     */
+    public void setShowAll(boolean showAll) {
+        this.showAll = showAll;
     }
 }
