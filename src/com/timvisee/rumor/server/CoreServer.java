@@ -37,6 +37,7 @@ public class CoreServer extends Core {
 
         // Start the server
         this.sc = new ServerController();
+        this.sc.start();
 
         // The initialization seems to be fine, return true
         return true;

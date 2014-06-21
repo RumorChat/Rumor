@@ -4,6 +4,7 @@ import com.timvisee.rumor.Defaults;
 import com.timvisee.rumor.server.CoreServer;
 
 import java.io.IOException;
+import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -41,6 +42,10 @@ public class ClientAccepter {
         // Set up a server socket and start listening for clients to connect
         try {
             this.sock = new ServerSocket(Defaults.APP_SERVER_PORT);
+
+        } catch(BindException e) {
+            CoreServer.getLogger().error("Failed to start server, port already in use!");
+            return false;
 
         } catch (IOException e) {
             // TODO: Handle errors such as 'port already in use' properly
