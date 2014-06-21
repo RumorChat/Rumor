@@ -10,9 +10,12 @@ import java.net.Socket;
 
 public class ServerConnector {
 
+    /** Server host to connect to */
     private String host;
+    /** Server port to connect to */
     private int port;
 
+    /** Variable tracking whether there's an active connection or not */
     private boolean connected = false;
 
     /**

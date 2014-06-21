@@ -6,6 +6,7 @@ import java.util.List;
 
 public class SessionManager {
 
+    /** List of active sessions */
     private List<Session> sessions = new ArrayList<Session>();
 
     /**

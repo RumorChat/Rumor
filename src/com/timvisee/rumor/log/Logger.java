@@ -2,18 +2,29 @@ package com.timvisee.rumor.log;
 
 public class Logger {
 
+    /** Info message prefix */
     private static final String INFO_PREFIX = "[INFO]";
+    /** Warning message prefix */
     private static final String WARNING_PREFIX = "[WARNING]";
+    /** Error message prefix */
     private static final String ERROR_PREFIX = "[ERROR]";
+    /** Debug message prefix */
     private static final String DEBUG_PREFIX = "[DEBUG]";
 
+    /** Defines whether the logger is enabled or not */
     private boolean enabled = true;
+    /** Defines whether the debugging mode is active */
     private boolean debug = false;
 
+    /** True to hide all info messages, false to unhide them. */
     private boolean hideInfo = true;
+    /** True to hide all warning messages, false to unhide them */
     private boolean hideWarn = true;
+    /** True to hide all error messages, false to unhide them */
     private boolean hideErr = true;
+    /** True to hide all debug messages, false to unhide them */
     private boolean hideDebug = true;
+    /** True to show all message types, even if hiders are enabled. */
     private boolean showAll = true;
 
     /**

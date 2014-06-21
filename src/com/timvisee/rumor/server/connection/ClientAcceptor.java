@@ -11,9 +11,12 @@ import java.net.Socket;
 
 public class ClientAcceptor {
 
+    /** Session manager instance. */
     private SessionManager sessionMan;
 
+    /** Server socket instance, which is used to accept all connections on. */
     private ServerSocket sock;
+    /** Connection acceptance thread instance. */
     private Thread acceptanceThread;
 
     /**

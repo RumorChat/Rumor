@@ -7,6 +7,7 @@ import java.net.Socket;
 
 public class SessionConnector {
 
+    /** Client's socket instance */
     private Socket s;
 
     /**

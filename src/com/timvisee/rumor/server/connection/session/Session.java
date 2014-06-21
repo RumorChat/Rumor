@@ -2,6 +2,7 @@ package com.timvisee.rumor.server.connection.session;
 
 public class Session {
 
+    /** Session connector instance */
     private SessionConnector con;
 
     /**

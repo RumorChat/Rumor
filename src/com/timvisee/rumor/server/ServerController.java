@@ -7,7 +7,9 @@ import com.timvisee.rumor.util.Profiler;
 
 public class ServerController {
 
+    /** Session manager instance. */
     private SessionManager sessionManager;
+    /** Client accepter instance */
     private ClientAcceptor clientAccepter;
 
     /**

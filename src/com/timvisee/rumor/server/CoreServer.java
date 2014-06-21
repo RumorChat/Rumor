@@ -6,7 +6,9 @@ import com.timvisee.rumor.util.Profiler;
 
 public class CoreServer extends Core {
 
+    /** Server controller instance */
     private ServerController sc;
+    /** Static instance */
     public static CoreServer instance;
 
     /**

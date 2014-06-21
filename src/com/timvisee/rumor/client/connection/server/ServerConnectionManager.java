@@ -5,6 +5,7 @@ import com.timvisee.rumor.client.CoreClient;
 
 public class ServerConnectionManager {
 
+    /** Server connector instance */
     private ServerConnector con;
 
     /**

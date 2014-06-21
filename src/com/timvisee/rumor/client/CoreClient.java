@@ -7,6 +7,7 @@ import com.timvisee.rumor.client.connection.server.ServerConnector;
 
 public class CoreClient extends Core {
 
+    /** Server connector instance */
     private ServerConnector con;
 
     /**
