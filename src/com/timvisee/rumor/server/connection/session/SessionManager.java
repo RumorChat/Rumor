@@ -80,4 +80,21 @@ public class SessionManager {
         // Return the result
         return removed;
     }
+
+    /**
+     * Disconnect all sessions.
+     * Warning: Some sessions might fail disconnecting.
+     * @return Count of disconnected sessions.
+     */
+    public int disconnectAll() {
+        // Count the sessions currently available
+        int sessionCount = this.sessions.size();
+
+        // Disconnect each session
+        for(Session s : this.sessions)
+            s.disconnect();
+
+        // Return the count of disconnected sessions
+        return sessionCount - this.sessions.size();
+    }
 }
