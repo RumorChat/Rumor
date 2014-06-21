@@ -3,8 +3,11 @@ package com.timvisee.rumor.client;
 import com.timvisee.rumor.Core;
 import com.timvisee.rumor.Defaults;
 import com.timvisee.rumor.Profiler;
+import com.timvisee.rumor.client.connector.ServerConnector;
 
 public class CoreClient extends Core {
+
+    private ServerConnector con;
 
     /**
      * Constructor
@@ -33,11 +36,19 @@ public class CoreClient extends Core {
         // Initialization finished, show a message
         CoreClient.getLogger().info("Successfully initialized, took " + initProf.getDurationString() + "! Cave Johnson here!");
 
-        // TODO: Perform a test connection
-        Connector c = new Connector("localhost");
-        c.connect();
+        // TODO: Perform a demo connection for test purposes
+        this.con = new ServerConnector("localhost");
+        this.con.connect();
 
         // The initialization seems to be fine, return true
         return true;
+    }
+
+    /**
+     * Get the server connector instance.
+     * @return Server connector instance, or null if the server connector isn't available yet.
+     */
+    public ServerConnector getServerConnector() {
+        return this.con;
     }
 }

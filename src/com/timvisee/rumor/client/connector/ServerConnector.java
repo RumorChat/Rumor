@@ -1,22 +1,25 @@
-package com.timvisee.rumor.client;
+package com.timvisee.rumor.client.connector;
 
 import com.timvisee.rumor.Defaults;
 import com.timvisee.rumor.Profiler;
+import com.timvisee.rumor.client.CoreClient;
 
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 
-public class Connector {
+public class ServerConnector {
 
     private String host;
     private int port;
+
+    private boolean connected = false;
 
     /**
      * Constructor
      * @param host Server host
      */
-    public Connector(String host) {
+    public ServerConnector(String host) {
         this(host, Defaults.APP_SERVER_PORT);
     }
 
@@ -25,12 +28,23 @@ public class Connector {
      * @param host Server host
      * @param port Server port
      */
-    public Connector(String host, int port) {
+    public ServerConnector(String host, int port) {
         this.host = host;
         this.port = port;
     }
 
+    /**
+     * Connect to the server
+     * @return True if a connection was made successfully, false otherwise.
+     * Also returns true if there already was an active connection.
+     */
     public boolean connect() {
+        // Make sure we aren't connected already
+        if(isConnected()) {
+            CoreClient.getLogger().debug("Cancelled server connection, already connected!");
+            return true;
+        }
+
         // Profile the connection process
         Profiler conProf = new Profiler(true);
 
@@ -44,6 +58,8 @@ public class Connector {
             InetAddress address = InetAddress.getByName(this.host);
             // TODO: Validate the port
             Socket connection = new Socket(address, this.port);
+
+            this.connected = true;
 
             BufferedInputStream bis = new BufferedInputStream(connection.getInputStream());
             InputStreamReader isr = new InputStreamReader(bis, "US-ASCII");
@@ -77,16 +93,14 @@ public class Connector {
             connection.close();
             //System.out.println(instr);
 
-        } catch (IOException e) {
-            // Print the error
-            e.printStackTrace();
+            this.connected = false;
 
-            // An error occurred, return false
-            return false;
+        } catch(Exception e) {
+            // Show a status message
+            CoreClient.getLogger().error("An error occurred while connecting to the server!");
+            CoreClient.getLogger().error("ERROR: " + e.getMessage());
 
-        } catch (Exception e) {
-            // Print the error
-            e.printStackTrace();
+            this.connected = false;
 
             // An error occurred, return false
             return false;
@@ -94,7 +108,15 @@ public class Connector {
 
         CoreClient.getLogger().info("Disconnected from server!");
 
-        // Everything seems to be fine, return true
-        return true;
+        // Return true if a connection was made successfully
+        return isConnected();
+    }
+
+    /**
+     * Check whether there is an active connection to the server.
+     * @return True if there's an active connection to the server, false otherwise.
+     */
+    public boolean isConnected() {
+        return this.connected;
     }
 }
