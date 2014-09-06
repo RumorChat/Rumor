@@ -1,21 +1,24 @@
 package com.timvisee.rumor.server.connection.session;
 
+import com.timvisee.rumor.server.connection.Connection;
+
 public class Session {
 
-    /** Session connector instance */
-    private SessionConnector con;
+    private Connection con;
 
     /**
      * Create a new session.
-     * @param con Session connector instance
+     *
+     * @param con Client connection
      */
-    public Session(SessionConnector con) {
+    public Session(Connection con) {
         this.con = con;
     }
 
     /**
      * Check whether this session is connected
-     * @return True if connected, false otherwi se
+     *
+     * @return True if connected, false otherwise
      */
     public boolean isConnected() {
         return this.con.isConnected();
@@ -23,6 +26,7 @@ public class Session {
 
     /**
      * Disconnect the session
+     *
      * @return True if the session was disconnected successfully, false otherwise.
      * Also returns true if the session was disconnected already.
      */
@@ -37,10 +41,11 @@ public class Session {
     }
 
     /**
-     * Get the session connector instance
-     * @return Session connector instance
+     * Get the connection instance
+     *
+     * @return Connection instance
      */
-    public SessionConnector getConnector() {
+    public Connection getConnection() {
         return this.con;
     }
 }

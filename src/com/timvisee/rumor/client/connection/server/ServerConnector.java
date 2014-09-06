@@ -1,6 +1,11 @@
 package com.timvisee.rumor.client.connection.server;
 
+import com.timvisee.rumor.Core;
 import com.timvisee.rumor.Defaults;
+import com.timvisee.rumor.protocol.packet.Packet;
+import com.timvisee.rumor.protocol.packet.PacketFactory;
+import com.timvisee.rumor.protocol.packet.PacketHandler;
+import com.timvisee.rumor.protocol.packet.PacketListener;
 import com.timvisee.rumor.util.Profiler;
 import com.timvisee.rumor.client.CoreClient;
 
@@ -60,11 +65,11 @@ public class ServerConnector {
             // TODO: Validate the host
             InetAddress address = InetAddress.getByName(this.host);
             // TODO: Validate the port
-            Socket connection = new Socket(address, this.port);
+            final Socket connection = new Socket(address, this.port);
 
             this.connected = true;
 
-            BufferedInputStream bis = new BufferedInputStream(connection.getInputStream());
+            final BufferedInputStream bis = new BufferedInputStream(connection.getInputStream());
             InputStreamReader isr = new InputStreamReader(bis, "US-ASCII");
 
             BufferedOutputStream bos = new BufferedOutputStream(connection.getOutputStream());
@@ -91,12 +96,45 @@ public class ServerConnector {
 
             osw.flush();
 
-            Thread.sleep(2500);
+            final PacketHandler ph = new PacketHandler();
+            ph.addPacketListener(new PacketListener() {
+                @Override
+                public void onPacketReceived(Packet p) {
+                    //CoreClient.getLogger().info(p.getStrings().get(0));
+                }
+            });
 
-            connection.close();
-            //System.out.println(instr);
+            // Send a handshake packet
+            PacketHandler.send(osw, PacketFactory.createHandshakePacket());
+            PacketHandler.send(osw, PacketFactory.createClientInfoPacket());
+            PacketHandler.send(osw, PacketFactory.createAuthenticationPacket("SomeUser"));
+            Core.getLogger().debug("Send handshake packet to server!");
 
             this.connected = false;
+
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    CoreClient.getLogger().debug("Started packet listener thread.");
+                    while(true) {
+                        // TODO: Wait for packets, instead of infinite loops!
+
+                        try {
+                            while(bis.available() > 0)
+                                ph.received(bis.read());
+
+                        } catch(IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            });
+            t.start();
+
+            //Thread.sleep(5000);
+
+            //connection.close();
+            //System.out.println(instr);
 
         } catch(Exception e) {
             // Show a status message
@@ -109,8 +147,6 @@ public class ServerConnector {
             return false;
         }
 
-        CoreClient.getLogger().info("Disconnected from server!");
-
         // Return true if a connection was made successfully
         return isConnected();
     }
@@ -121,5 +157,27 @@ public class ServerConnector {
      */
     public boolean isConnected() {
         return this.connected;
+    }
+
+    /**
+     * Disconnect from the server
+     * @return True if
+     */
+    public boolean disconnect() {
+        // Show a status message
+        CoreClient.getLogger().info("Disconnecting from server...");
+
+        // TODO: Disconnect logic here...
+
+        // Make sure we're disconnected, if not, show an error message
+        if(isConnected()) {
+            // Show a status message
+            CoreClient.getLogger().error("Failed to disconnect from the server!");
+            return false;
+        }
+
+        // Show a status message
+        CoreClient.getLogger().info("Disconnected from server!");
+        return false;
     }
 }

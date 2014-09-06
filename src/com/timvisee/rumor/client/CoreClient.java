@@ -4,9 +4,12 @@ import com.timvisee.rumor.Core;
 import com.timvisee.rumor.Defaults;
 import com.timvisee.rumor.util.Profiler;
 import com.timvisee.rumor.client.connection.server.ServerConnector;
+import javafx.scene.input.KeyCode;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.Random;
 
 public class CoreClient extends Core {
@@ -42,7 +45,7 @@ public class CoreClient extends Core {
         CoreClient.getLogger().info("Successfully initialized, took " + initProf.getDurationString() + "! Cave Johnson here!");
 
         // TODO: Perform a demo connection for test purposes
-        this.con = new ServerConnector("localhost");
+        this.con = new ServerConnector("local.timvisee.com");
         this.con.connect();
 
         // Build a window for test purposes
@@ -70,17 +73,47 @@ public class CoreClient extends Core {
         f.setLayout(new FlowLayout());
         f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         f.setMinimumSize(new Dimension(600, 400));
+        f.getContentPane().setBackground(new Color(48, 48, 48));
 
         // Create a list with some dummy text
-        DefaultListModel dlm = new DefaultListModel();
-        for(int i3 = 0; i3 < 100; i3++)
-            dlm.addElement("User: " + rand.nextInt(Integer.MAX_VALUE));
+        final DefaultListModel dlm = new DefaultListModel();
+        /*for(int i3 = 0; i3 < 100; i3++)
+            dlm.addElement("%user%: " + rand.nextInt(Integer.MAX_VALUE));*/
+        dlm.addElement("[CORE] Started!");
         JList list = new JList(dlm);
 
         // Create the chat view
         JScrollPane chatView = new JScrollPane(list);
         chatView.setPreferredSize(new Dimension(300, 200));
         f.add(chatView);
+
+        final JTextArea txt = new JTextArea("Msg");
+        f.add(txt, BorderLayout.PAGE_END);
+        txt.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) { }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyCode() != KeyEvent.VK_ENTER)
+                    return;
+
+                e.consume();
+
+                String msg = txt.getText();
+                txt.setText("");
+
+                msg = msg.trim();
+
+                if(msg.length() <= 0)
+                    return;
+
+                dlm.addElement("%user%: " + msg);
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) { }
+        });
 
         // Pack all the components in the frame
         f.pack();

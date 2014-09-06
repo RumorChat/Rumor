@@ -1,5 +1,8 @@
 package com.timvisee.rumor.log;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Logger {
 
     /** Info message prefix */
@@ -26,6 +29,8 @@ public class Logger {
     private boolean hideDebug = true;
     /** True to show all message types, even if hiders are enabled. */
     private boolean showAll = true;
+
+    public List<String> history = new ArrayList<String>();
 
     /**
      * Constructor
@@ -135,9 +140,12 @@ public class Logger {
      */
     public void log(String msg) {
         // Make sure the logger is enabled
-        if(this.enabled)
+        if(this.enabled) {
             // Print the logged message to the console
             System.out.println(msg);
+
+            history.add(msg);
+        }
 
         // TODO: Store the logged message to a log file
     }

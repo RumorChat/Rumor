@@ -9,8 +9,8 @@ public class ServerController {
 
     /** Session manager instance. */
     private SessionManager sessionManager;
-    /** Client accepter instance */
-    private ClientAcceptor clientAccepter;
+    /** Client acceptor instance */
+    private ClientAcceptor clientAcceptor;
 
     /**
      * Constructor.
@@ -52,9 +52,9 @@ public class ServerController {
         // Set up the session manager
         this.sessionManager = new SessionManager();
 
-        // Set up the session accepter and start accepting clients
-        this.clientAccepter = new ClientAcceptor(this.sessionManager);
-        if(!this.clientAccepter.start()) {
+        // Set up the session acceptor and start accepting clients
+        this.clientAcceptor = new ClientAcceptor(this.sessionManager);
+        if(!this.clientAcceptor.start()) {
             // Stop the server start profiler
             serverProf.stop();
 
@@ -76,12 +76,12 @@ public class ServerController {
      * @return True if the server is started, false otherwise.
      */
     public boolean isStarted() {
-        // Make sure the session accepter is available
-        if(this.clientAccepter == null)
+        // Make sure the session acceptor is available
+        if(this.clientAcceptor == null)
             return false;
 
-        // Check whether the session accepter is active,
-        return this.clientAccepter.isActive();
+        // Check whether the session acceptor is active,
+        return this.clientAcceptor.isActive();
     }
 
     /**
@@ -95,8 +95,8 @@ public class ServerController {
             return true;
         }
 
-        // Stop the session accepter
-        this.clientAccepter.stop();
+        // Stop the session acceptor
+        this.clientAcceptor.stop();
 
         // TODO: Disconnect all connected clients
         // TODO: Stop all server (socket) listener threads
@@ -114,10 +114,10 @@ public class ServerController {
     }
 
     /**
-     * Get the session accepter instance
-     * @return Client accepter instance
+     * Get the session acceptor instance
+     * @return Client acceptor instance
      */
-    public ClientAcceptor getClientAccepter() {
-        return this.clientAccepter;
+    public ClientAcceptor getClientAcceptor() {
+        return this.clientAcceptor;
     }
 }

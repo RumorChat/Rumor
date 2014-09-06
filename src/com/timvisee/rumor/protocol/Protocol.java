@@ -1,6 +1,14 @@
 package com.timvisee.rumor.protocol;
 
+import com.timvisee.rumor.protocol.packet.Packet;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -19,214 +27,82 @@ public class Protocol {
     private static int DATA_ARRAY_SHORT = 4;
 
     public static String serialize(Packet p) {
-        StringBuilder sb = new StringBuilder();
+        // Create a packet object
+        JSONObject packet = new JSONObject();
 
-        // Add the packet header
-        sb.append(PACKET_HEADER);
+        // Set the packet ID
+        packet.put("packet_id", p.getPacketId());
 
-        // Send the target device ID
-        sb.append(serializeInt(p.getTargetId()));
+        // Create a data instance to hold all packet data
+        JSONObject packetData = new JSONObject();
 
-        // Separate the packet data
-        sb.append(PACKET_PART_SEPARATOR);
+        // Serialize the integer array
+        if(p.hasIntegers())
+            packetData.put("ints", p.getIntegers());
 
-        // Send the packet id
-        sb.append(serializeInt(p.getPacketId()));
+        // Serialize the boolean array
+        if(p.hasBooleans())
+            packetData.put("bools", p.getBooleans());
 
-        // Separate the packet data
-        sb.append(PACKET_PART_SEPARATOR);
+        // Serialize the string array
+        if(p.hasStrings())
+            packetData.put("strs", p.getStrings());
 
-        // Serialize the integer arrays
-        if(p.hasIntegers()) {
-            // Add the array type
-            sb.append(DATA_ARRAY_INTEGER);
+        // Add the serialized data to the main packet
+        packet.put("data", packetData);
 
-            for(int entry : p.getIntegers()) {
-                // Separate the array data
-                sb.append(PACKET_DATA_PART_ARRAY_SEPARATOR);
-
-                sb.append(serializeInt(entry));
-            }
-
-            // Separate the arrays
-            sb.append(PACKET_DATA_PART_SEPARATOR);
-        }
-
-        // Serialize the string arrays
-        if(p.hasBooleans()) {
-            // Add the array type
-            sb.append(DATA_ARRAY_BOOLEAN);
-
-            for(boolean entry : p.getBooleans()) {
-                // Separate the array data
-                sb.append(PACKET_DATA_PART_ARRAY_SEPARATOR);
-
-                sb.append(serializeBoolean(entry));
-            }
-
-            // Separate the arrays
-            sb.append(PACKET_DATA_PART_SEPARATOR);
-        }
-
-        // Serialize the string arrays
-        if(p.hasStrings()) {
-            // Add the array type
-            sb.append(DATA_ARRAY_STRING);
-
-            for(String entry : p.getStrings()) {
-                // Separate the array data
-                sb.append(PACKET_DATA_PART_ARRAY_SEPARATOR);
-
-                sb.append(serializeString(entry));
-            }
-
-            // Separate the arrays
-            sb.append(PACKET_DATA_PART_SEPARATOR);
-        }
-
-        // Serialize the string arrays
-        if(p.hasShorts()) {
-            // Add the array type
-            sb.append(DATA_ARRAY_SHORT);
-
-            for(short entry : p.getShorts()) {
-                // Separate the array data
-                sb.append(PACKET_DATA_PART_ARRAY_SEPARATOR);
-
-                sb.append(serializeShort(entry));
-            }
-
-            // Separate the arrays
-            sb.append(PACKET_DATA_PART_SEPARATOR);
-        }
-
-        // Add the packet footer
-        sb.append(PACKET_FOOTER);
-
-        return sb.toString();
+        // Return the packet object
+        return packet.toJSONString() + "\n";
     }
 
     public static Packet deserialize(String str) {
-        // Split the packet
-        String parts[] = str.split("(?<!\\\\)" + Pattern.quote(String.valueOf(PACKET_PART_SEPARATOR)));
+        // Instantiate the parser
+        JSONParser parser = new JSONParser();
 
-        // Make sure either two to three parts are available
-        if(parts.length < 2 || parts.length > 3) {
-            System.out.println("ERROR! INVALID PART COUNT!");
+        try {
+            JSONObject obj = (JSONObject) parser.parse(str);
+
+            // Parse the packet ID
+            int packet_id = (int) ((long) ((Long) obj.get("packet_id")));
+
+            // Create a new packet
+            Packet p = new Packet(packet_id);
+
+            // Parse the packet data
+            JSONObject objData = (JSONObject) obj.get("data");
+
+            // Parse integers
+            if(objData.containsKey("ints")) {
+                JSONArray intsArr = (JSONArray) objData.get("ints");
+                List<Long> longs = Arrays.asList((Long[]) intsArr.toArray(new Long[]{}));
+
+                List<Integer> ints = new ArrayList<Integer>();
+                for(long l : longs)
+                    ints.add((int) l);
+
+                p.setIntegers(ints);
+            }
+
+            // Parse booleans
+            if(objData.containsKey("bools")) {
+                JSONArray boolsArr = (JSONArray) objData.get("bools");
+                List<Boolean> bools = Arrays.asList((Boolean[]) boolsArr.toArray(new Boolean[]{}));
+                p.setBooleans(bools);
+            }
+
+            // Parse strings
+            if(objData.containsKey("strs")) {
+                JSONArray strsArr = (JSONArray) objData.get("strs");
+                List<String> strs = Arrays.asList((String[]) strsArr.toArray(new String[]{}));
+                p.setStrings(strs);
+            }
+
+            // Return the packet
+            return p;
+
+        } catch(Exception e) {
+            e.printStackTrace();
             return null;
         }
-
-        // Get the packet target device ID
-        int targetId = deserializeInt(parts[0]);
-
-        // Get the packet ID
-        int pId = deserializeInt(parts[1]);
-
-        // Create a new packet
-        Packet p = new Packet(targetId, pId);
-
-        // Parse the data if available
-        if(parts.length >= 3) {
-            String dataStr = parts[2];
-
-            String[] dataParts = dataStr.split("(?<!\\\\)" + Pattern.quote(String.valueOf(PACKET_DATA_PART_SEPARATOR)));
-
-            // Parse each array
-            for(String dataArrStr : dataParts) {
-                // Make sure this array string contains anything
-                if(dataArrStr.trim().length() == 0)
-                    continue;
-
-                // Split the array string
-                String[] arrParts = dataArrStr.split("(?<!\\\\)" + Pattern.quote(String.valueOf(PACKET_DATA_PART_ARRAY_SEPARATOR)));
-
-                // Get the array type
-                String arrTypeStr = arrParts[0];
-                int arrType = deserializeInt(arrTypeStr);
-
-                // Parse the array
-                if(arrType == DATA_ARRAY_INTEGER) {
-                    List<Integer> buff = new ArrayList<Integer>();
-
-                    for(int i = 1; i < arrParts.length; i++)
-                        buff.add(deserializeInt(arrParts[i]));
-
-                    p.setIntegers(buff);
-
-                } else if(arrType == DATA_ARRAY_BOOLEAN) {
-                    List<Boolean> buff = new ArrayList<Boolean>();
-
-                    for(int i = 1; i < arrParts.length; i++)
-                        buff.add(deserializeBoolean(arrParts[i]));
-
-                    p.setBooleans(buff);
-
-                } else if(arrType == DATA_ARRAY_STRING) {
-                    List<String> buff = new ArrayList<String>();
-
-                    for(int i = 1; i < arrParts.length; i++)
-                        buff.add(deserializeString(arrParts[i]));
-
-                    p.setStrings(buff);
-
-                } else if(arrType == DATA_ARRAY_SHORT) {
-                    List<Short> buff = new ArrayList<Short>();
-
-                    for(int i = 1; i < arrParts.length; i++)
-                        buff.add(deserializeShort(arrParts[i]));
-
-                    p.setShorts(buff);
-                }
-            }
-        }
-
-        // Return the packet
-        return p;
-    }
-
-    private static String serializeInt(int i) {
-        return ("" + i);
-    }
-
-    private static int deserializeInt(String str) {
-        return Integer.parseInt(String.valueOf(str));
-    }
-
-    private static String serializeShort(short s) {
-        return ("" + s);
-    }
-
-    private static short deserializeShort(String str) {
-        return Short.parseShort(String.valueOf(str));
-    }
-
-    private static String serializeBoolean(boolean b) {
-        return serializeString(b ? "1" : "0");
-    }
-
-    private static boolean deserializeBoolean(String str) {
-        return (str.equals("1"));
-    }
-
-    private static String serializeString(String str) {
-        str = str.replaceAll("\\\\", "\\\\\\\\");
-
-        for(int i = 0; i < 32; i++) {
-            char c = (char) i;
-            str = str.replaceAll(Pattern.quote(String.valueOf(c)), "\\\\" + String.valueOf(c));
-        }
-
-        return str;
-    }
-
-    private static String deserializeString(String str) {
-        str = str.replaceAll("\\\\\\\\", "\\\\");
-
-        for(int i = 0; i < 32; i++) {
-            char c = (char) i;
-            str = str.replaceAll("\\\\" + Pattern.quote(String.valueOf(c)), String.valueOf(c));
-        }
-
-        return str;
     }
 }

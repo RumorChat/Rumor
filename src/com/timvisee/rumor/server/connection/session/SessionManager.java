@@ -1,12 +1,17 @@
 package com.timvisee.rumor.server.connection.session;
 
+import com.timvisee.rumor.server.connection.Connection;
+import com.timvisee.rumor.server.connection.newclient.NewClient;
+
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SessionManager {
 
-    /** List of active sessions */
+    /**
+     * List of active sessions
+     */
     private List<Session> sessions = new ArrayList<Session>();
 
     /**
@@ -16,6 +21,7 @@ public class SessionManager {
 
     /**
      * Return the list of connected sessions
+     *
      * @return List of connected sessions
      */
     public List<Session> getSessions() {
@@ -24,6 +30,7 @@ public class SessionManager {
 
     /**
      * Get the count of connected sessions
+     *
      * @return Count of connected sessions
      */
     public int getSessionCount() {
@@ -32,12 +39,14 @@ public class SessionManager {
 
     /**
      * Create a new session.
-     * @param sock Client's socket instance
+     *
+     * @param con Client connection.
+     *
      * @return The session instance if a session was created successfully, null otherwise.
      */
-    public Session createSession(Socket sock) {
+    public Session createSession(Connection con) {
         // Construct the session connector
-        SessionConnector con = new SessionConnector(sock);
+        //SessionConnector sesCon = new SessionConnector(con);
 
         // Construct the session itself
         Session s = new Session(con);
@@ -48,8 +57,21 @@ public class SessionManager {
     }
 
     /**
+     * Create a new session.
+     *
+     * @param client New client instance
+     *
+     * @return The session instance if a session was created successfully, null otherwise.
+     */
+    public Session createSession(NewClient client) {
+        return this.createSession(client.getConnection());
+    }
+
+    /**
      * Remove a session by it's socket
+     *
      * @param sock Socket of the session to remove
+     *
      * @return True if any session was removed, false if not.
      */
     public boolean removeSession(Socket sock) {
@@ -66,7 +88,7 @@ public class SessionManager {
             Session s = this.sessions.get(i);
 
             // Make sure the sockets are equal
-            if(s.getConnector().getSocket() != sock)
+            if(s.getConnection().getSocket() != sock)
                 continue;
 
             // Make sure session is disconnected
@@ -85,6 +107,7 @@ public class SessionManager {
     /**
      * Disconnect all sessions.
      * Warning: Some sessions might fail disconnecting.
+     *
      * @return Count of disconnected sessions.
      */
     public int disconnectAll() {

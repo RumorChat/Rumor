@@ -1,27 +1,104 @@
 package com.timvisee.rumor.server.connection.session;
 
+import com.timvisee.rumor.Core;
+import com.timvisee.rumor.protocol.packet.Packet;
+import com.timvisee.rumor.protocol.Protocol;
+import com.timvisee.rumor.protocol.packet.PacketFactory;
+import com.timvisee.rumor.protocol.packet.PacketHandler;
+import com.timvisee.rumor.protocol.packet.PacketListener;
 import com.timvisee.rumor.server.CoreServer;
+import com.timvisee.rumor.server.connection.Connection;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.Socket;
 
 public class SessionConnector {
 
-    /** Client's socket instance */
-    private Socket s;
+    /*
+    /** Client's socket instance * /
+     */
+    private Connection con;
+
+    /*private BufferedOutputStream bos = null;
+    private OutputStreamWriter osw = null;* /
+
+    private PrintWriter out;
+
+    private PacketHandler ph;
+
+    private SessionConnectorPacketListener listener;
 
     /**
      * Spawn a new session connector
-     * @param s Client's socket instance to use for this session
-     */
-    public SessionConnector(Socket s) {
-        this.s = s;
+     *
+     * @param con Client connection instance.
+     * /
+    public SessionConnector(Connection con) {
+        // Set the connection instance
+        this.con = con;
+
+        // Set up the packet handler
+        this.ph = new PacketHandler();
+        // TODO: Route all received data to the packet handler!
+
+        // Create a packet listener
+        this.listener = new SessionConnectorPacketListener();
+        this.ph.addPacketListener(this.listener);
+
+        // Construct a print writer
+        try {
+            out = new PrintWriter(s.getOutputStream(), true);
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(true) {
+                    try {
+                        Thread.sleep(5000);
+                    } catch(InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    // Send a test packet
+                    Packet p = new Packet(0);
+                    p.appendString("Welcome client!");
+                    p.appendInteger(3);
+                    p.appendInteger(5);
+                    p.appendInteger(7);
+                    p.appendString("Another string!");
+                    p.appendBoolean(true);
+                    p.appendBoolean(false);
+                    p.appendBoolean(true);
+
+                    send(p);
+                }
+            }
+        });
+        t.start();
+    }
+
+    public boolean send(Packet p) {
+        return send(Protocol.serialize(p));
+    }
+
+    public boolean send(String data) {
+        Core.getLogger().debug("[Send Packet] " + data);
+
+        out.write(data);
+        out.flush();
+
+        // TODO: Make sure the results are good, before returning true
+        return true;
     }
 
     /**
      * Check whether the session is connected.
      * @return True if the session is connected, false if not.
-     */
+     * /
     public boolean isConnected() {
         // Make sure a socket instance is available
         if(this.s == null)
@@ -37,7 +114,7 @@ public class SessionConnector {
      * Disconnect the session connector from the client
      * @return True if the session connector disconnected successfully.
      * Also returns true if there wasn't an active connection.
-     */
+     * /
     public boolean disconnect() {
         // Make sure we are connected
         if(!isConnected()) {
@@ -45,10 +122,15 @@ public class SessionConnector {
             return true;
         }
 
-        // Close the socket
         try {
+            // Send a close packet
+            send(PacketFactory.createDisconnectPacket());
+
+            // Close the socket
             this.s.close();
+
         } catch(IOException e) {
+            // An error occurred, show an error message
             CoreServer.getLogger().error("An error occurred while disconnecting a session!");
             CoreServer.getLogger().error("ERROR: " + e.getMessage());
         }
@@ -68,16 +150,31 @@ public class SessionConnector {
     /**
      * Get the session's socket instance
      * @return Session's socket instance
-     */
+     * /
     public Socket getSocket() {
         return this.s;
+    }
+
+    /**
+     * Get the packet handler instance
+     * @return Packet handler instance
+     * /
+    public PacketHandler getPacketHandler() {
+        return this.ph;
+    }
+
+    public class SessionConnectorPacketListener extends PacketListener {
+        @Override
+        public void onPacketReceived(Packet p) {
+            Core.getLogger().debug("[Test Listener] Received something!");
+        }
     }
 
     /*out = new PrintWriter(link.getOutputStream(), true);
 
     PacketHandler ph = new PacketHandler();
 
-    ph.registerListener(new PacketListener() {
+    ph.addPacketListener(new PacketListener() {
         @Override
         public void onPacketReceived(Packet p) {
             packetsReceived++;
@@ -96,5 +193,6 @@ public class SessionConnector {
                 MainFrame.r.setBottomRightLegAngle(p.getIntegers().get(3));
             }
         }
-    });*/
+    });* /
+    */
 }
