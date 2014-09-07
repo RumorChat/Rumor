@@ -1,5 +1,6 @@
 package com.timvisee.rumor.server.connection.session;
 
+import com.timvisee.rumor.server.DisconnectReason;
 import com.timvisee.rumor.server.connection.Connection;
 import com.timvisee.rumor.server.connection.newclient.NewClient;
 
@@ -70,13 +71,13 @@ public class SessionManager {
     /**
      * Remove a session by it's socket
      *
-     * @param sock Socket of the session to remove
+     * @param con Socket of the session to remove
      *
      * @return True if any session was removed, false if not.
      */
-    public boolean removeSession(Socket sock) {
+    public boolean removeSession(Connection con) {
         // Make sure a valid socket instance is specified
-        if(sock == null)
+        if(con == null)
             return false;
 
         // Track whether we removed a session or not
@@ -88,11 +89,11 @@ public class SessionManager {
             Session s = this.sessions.get(i);
 
             // Make sure the sockets are equal
-            if(s.getConnection().getSocket() != sock)
+            if(!s.getConnection().equals(con))
                 continue;
 
             // Make sure session is disconnected
-            s.disconnect();
+            s.disconnect(DisconnectReason.UNKNOWN);
 
             // Remove the session
             this.sessions.remove(i);
@@ -108,15 +109,17 @@ public class SessionManager {
      * Disconnect all sessions.
      * Warning: Some sessions might fail disconnecting.
      *
+     * @param reason Disconnection reason.
+     *
      * @return Count of disconnected sessions.
      */
-    public int disconnectAll() {
+    public int disconnectAll(DisconnectReason reason) {
         // Count the sessions currently available
         int sessionCount = this.sessions.size();
 
         // Disconnect each session
         for(Session s : this.sessions)
-            s.disconnect();
+            s.disconnect(reason);
 
         // Return the count of disconnected sessions
         return sessionCount - this.sessions.size();

@@ -2,8 +2,11 @@ package com.timvisee.rumor.server.connection;
 
 import com.timvisee.rumor.Core;
 import com.timvisee.rumor.protocol.packet.Packet;
+import com.timvisee.rumor.protocol.packet.PacketFactory;
 import com.timvisee.rumor.protocol.packet.PacketListener;
 import com.timvisee.rumor.protocol.packet.ServerPacketHandler;
+import com.timvisee.rumor.server.CoreServer;
+import com.timvisee.rumor.server.DisconnectReason;
 
 import java.io.*;
 import java.net.Socket;
@@ -32,6 +35,8 @@ public class Connection {
     private Thread sockThread;
 
     private List<PacketListener> listeners = new ArrayList<PacketListener>();
+
+    private boolean disconnected = false;
 
     /**
      * Constructor
@@ -158,11 +163,30 @@ public class Connection {
 
     public boolean isConnected() {
         // TODO: Put proper code here!
-        return true;
+        return !this.disconnected;
     }
 
-    public boolean disconnect() {
-        // TODO: Put proper code here!
+    /**
+     * Properly disconnect the connection.
+     *
+     * @param reason The reason of disconnection.
+     *
+     * @return True on success, false on failure. False will be returned if the connection was already disconnected.
+     */
+    public boolean disconnect(DisconnectReason reason) {
+        // Make sure the connection isn't disconnected already
+        if(disconnected)
+            return false;
+
+        // Send a disconnect packet
+        sendPacket(PacketFactory.createDisconnectPacket(reason));
+        disconnected = true;
+
+        // Remove the connection from the connection manager
+        CoreServer.instance.getServerController().getConnectionManager().disconnect(this, reason);
+
+        // Show a status message, return the result
+        Core.getLogger().info("Client disconnected!");
         return true;
     }
 
@@ -201,10 +225,13 @@ public class Connection {
      * Send a packet.
      *
      * @param p Packet to send.
+     *
+     * @return True on success, false on failure.
      */
-    public void sendPacket(Packet p) {
+    public boolean sendPacket(Packet p) {
         this.ph.send(p);
 
         // TODO: Return some status
+        return true;
     }
 }

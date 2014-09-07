@@ -2,6 +2,7 @@ package com.timvisee.rumor.server.connection.newclient;
 
 import com.timvisee.rumor.Core;
 import com.timvisee.rumor.protocol.packet.*;
+import com.timvisee.rumor.server.DisconnectReason;
 import com.timvisee.rumor.server.connection.Connection;
 
 public class NewClient {
@@ -176,5 +177,16 @@ public class NewClient {
 
         // Check whether the client was authenticated, return the result
         return this.authAt != -1;
+    }
+
+    /**
+     * Disconnect the client.
+     *
+     * @param reason Reason of disconnection.
+     *
+     * @return True on success, false on failure.
+     */
+    public boolean disconnect(DisconnectReason reason) {
+        return this.con.disconnect(reason);
     }
 }

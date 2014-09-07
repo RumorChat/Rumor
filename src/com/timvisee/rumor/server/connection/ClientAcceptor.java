@@ -1,5 +1,6 @@
 package com.timvisee.rumor.server.connection;
 
+import com.timvisee.rumor.Core;
 import com.timvisee.rumor.Defaults;
 import com.timvisee.rumor.server.CoreServer;
 import com.timvisee.rumor.server.connection.newclient.NewClientManager;
@@ -9,6 +10,7 @@ import java.io.IOException;
 import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 
 public class ClientAcceptor {
 
@@ -17,10 +19,15 @@ public class ClientAcceptor {
 
     /** Server socket instance, which is used to accept all connections on. */
     private ServerSocket server;
-    /** Connection acceptance thread instance. */
-    private Thread acceptanceThread;
 
+    /** New client manager instance */
     private NewClientManager newClientMan;
+
+    /** Connection acceptance thread instance. */
+    private Thread acceptorThread;
+
+    /** The time in milliseconds the server socket listener times out */
+    private final int SERVER_SOCKET_ACCEPTOR_TIMEOUT = 50;
 
     /**
      * Constructor
@@ -76,56 +83,74 @@ public class ClientAcceptor {
         }
 
         // Start the session acceptance thread
-        this.acceptanceThread = new Thread(new Runnable() {
+        this.acceptorThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                while(true) {
+                // Client acceptor thread starting, show a status message!
+                Core.getLogger().debug("Client acceptor thread started!");
+
+                // Start the client acceptance
+                while(!Thread.currentThread().isInterrupted()) {
                     try {
                         // Wait for a client to connect, show a status message
                         CoreServer.getLogger().debug("Waiting for " + Defaults.APP_NAME + " client to connect...");
 
-                        // Accept the next session
-                        Socket clientSock = server.accept();
+                        // Create a variable to store the client socket instance in
+                        Socket clientSock = null;
 
-                        CoreServer.getLogger().debug("Client connecting...");
+                        // Wait for a client to connect, unless the thread is interrupted
+                        while(!Thread.currentThread().isInterrupted() && clientSock == null) {
+                            try {
+                                // Set the server socket timeout, which achieves non-blocking code
+                                server.setSoTimeout(SERVER_SOCKET_ACCEPTOR_TIMEOUT);
 
-                        // Add the connection
-                        Connection con = CoreServer.instance.getConnectionManager().addConnection(clientSock);
+                                // Wait for a client to connect
+                                clientSock = server.accept();
+                            } catch(SocketTimeoutException ex) {
+                                // The server socket listener timed out, used to get non-blocking code
+                            }
+                        }
+
+                        // Make sure the thread isn't interrupted and that a valid socket was accepted
+                        if(Thread.currentThread().isInterrupted() || clientSock == null)
+                            continue;
+
+                        // Show a status message
+                        CoreServer.getLogger().debug("Accepting client from " + clientSock.getInetAddress().getHostAddress() + "...");
+
+                        // Add the socket as a connection
+                        Connection con = CoreServer.instance.getServerController().getConnectionManager().addConnection(clientSock);
 
                         // Make sure the connection is valid
+                        // TODO: Better client connection validation!
                         if(con == null) {
                             CoreServer.getLogger().error("Client failed to connect from " + clientSock.getInetAddress().getHostAddress() + "!");
                             continue;
                         }
 
                         // Add the new client
-                        // TODO: Make sure the new client was addess successfully!
                         newClientMan.addNewClient(con);
 
-                        // TODO: Make sure the session is valid
-                        // TODO: Authenticate
-
-                        /* // Create a session for the client
-                        sessionMan.createSession(client);
-
-                        // A session has connected, show a status message
-                        // TODO: Improve this status message!
-                        CoreServer.getLogger().info("A " + Defaults.APP_NAME + " client has successfully connected!");*/
-
                     } catch (IOException e) {
+                        // Print the stack trace
                         e.printStackTrace();
 
-                        // Sleep the thread for a little while to prevent infinite error loops
+                        // TODO: Allow a maximum number of errors within a specified time frame, before stopping the thread!
+
+                        // Sleep for a little, to prevent infinite error loops
                         try {
-                            Thread.sleep(100);
+                            Thread.sleep(50);
                         } catch (InterruptedException e1) {
                             e1.printStackTrace();
                         }
                     }
                 }
+
+                // Acceptance thread stopped, show a status message
+                Core.getLogger().debug("Client acceptor thread stopped!");
             }
         });
-        this.acceptanceThread.start();
+        this.acceptorThread.start();
 
         // Everything seems to be fine, return true
         return true;
@@ -133,9 +158,12 @@ public class ClientAcceptor {
 
     /**
      * Check whether the client acceptance thread is active.
+     *
      * @return True if the acceptance thread is active, false otherwise.
      */
     public boolean isActive() {
+        // TODO: Rewrite this method, due to thread interruptions
+
         // Make sure a server socket is created
         if(this.server == null)
             return false;
@@ -144,30 +172,45 @@ public class ClientAcceptor {
         if(this.server.isClosed())
             return false;
 
-        // Make sure an acceptance thread is created
-        if(this.acceptanceThread == null)
-            return false;
-
         // Make sure the acceptance thread is active
-        return this.acceptanceThread.isAlive();
+        return this.acceptorThread.isAlive();
     }
 
     /**
-     * Stop accepting clients
-     * @return True if
+     * Stop accepting clients.
+     *
+     * @param wait True to wait until all threads are fully stopped before returning.
+     *
+     * @return True if the client acceptor was stopped successfully, false otherwise.
      */
-    public boolean stop() {
-        // Stop the acceptance thread
+    public boolean stop(boolean wait) {
+        // TODO: Rewrite this method, due to thread interruptions
+
+        // Stopping client acceptor, show a status message
+        Core.getLogger().debug("Stopping client acceptor...");
+
         try {
-            this.acceptanceThread.stop();
-            this.acceptanceThread = null;
+            // Interrupt the thread
+            this.acceptorThread.interrupt();
+
+            // Wait for the thread to stop
+            while(wait && this.acceptorThread.isAlive()) {
+                try {
+                    Thread.sleep(1);
+                } catch(Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
         } catch(Exception e) {
-            CoreServer.getLogger().debug("Suppressed an exception which occurred while stopping the client acceptance thread!");
-            CoreServer.getLogger().debug("ERROR: " + e.getMessage());
+            CoreServer.getLogger().error("An error occurred while stopping the client acceptance thread!");
+            CoreServer.getLogger().error("ERROR: " + e.getMessage());
         }
 
+        // Stop the new client manager
+        this.newClientMan.stop(wait);
+
         // Close the server socket
-        // TODO: Can we close this socket while clients are connected?
+        // TODO: Can we close this server socket while clients are connected?
         try {
             this.server.close();
             this.server = null;
@@ -176,8 +219,12 @@ public class ClientAcceptor {
         }
 
         // TODO: Is the server closed, show a status message?
+        // TODO: Make sure everything stopped successfully!
 
-        // Check whether the acceptance thread stopped successfully, return the result
-        return isActive();
+        // Stopping client acceptor, show a status message
+        Core.getLogger().debug("Client acceptor stopped!");
+
+        // The client acceptor was stopped successfully, return the result
+        return true;
     }
 }

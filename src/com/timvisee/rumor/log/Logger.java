@@ -1,6 +1,9 @@
 package com.timvisee.rumor.log;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class Logger {
@@ -139,10 +142,15 @@ public class Logger {
      * @param msg Message to log
      */
     public void log(String msg) {
+        // Get the current time
+        DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+        Date date = new Date();
+        String time = dateFormat.format(date);
+
         // Make sure the logger is enabled
         if(this.enabled) {
             // Print the logged message to the console
-            System.out.println(msg);
+            System.out.println(time + " " + msg);
 
             history.add(msg);
         }

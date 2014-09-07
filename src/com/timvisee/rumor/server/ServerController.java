@@ -2,6 +2,7 @@ package com.timvisee.rumor.server;
 
 import com.timvisee.rumor.Defaults;
 import com.timvisee.rumor.server.connection.ClientAcceptor;
+import com.timvisee.rumor.server.connection.ConnectionManager;
 import com.timvisee.rumor.server.connection.session.SessionManager;
 import com.timvisee.rumor.util.Profiler;
 
@@ -11,6 +12,8 @@ public class ServerController {
     private SessionManager sessionManager;
     /** Client acceptor instance */
     private ClientAcceptor clientAcceptor;
+    /** Connection manager instance */
+    public ConnectionManager conMan;
 
     /**
      * Constructor.
@@ -21,17 +24,22 @@ public class ServerController {
     }
 
     /**
-     * Constructor
+     * Constructor.
+     *
      * @param start True to start the server immediately, false otherwise.
      */
     public ServerController(boolean start) {
+        // Set up the connection manager
+        this.conMan = new ConnectionManager();
+
         // Start the server
         if(start)
             start();
     }
 
     /**
-     * Start the server
+     * Start the server.
+     *
      * @return True if the server was started successfully, false otherwise.
      * Also returns true if the server was already running.
      */
@@ -72,10 +80,13 @@ public class ServerController {
     }
 
     /**
-     * Check whether the server is started
+     * Check whether the server is started.
+     *
      * @return True if the server is started, false otherwise.
      */
     public boolean isStarted() {
+        // TODO: Improve this method!
+
         // Make sure the session acceptor is available
         if(this.clientAcceptor == null)
             return false;
@@ -85,18 +96,24 @@ public class ServerController {
     }
 
     /**
-     * Stop the server
-     * @return True if the server was stopped, false if failed. Also returns true if
+     * Stop the server.
+     *
+     * @param wait True to wait until all threads are stopped before returning.
+     *
+     * @return True if the server was stopped, false if failed. Also returns true if.
      */
-    public boolean stop() {
+    public boolean stop(boolean wait) {
         // Make sure the server is started
         if(!isStarted()) {
-            CoreServer.getLogger().debug("Didn't stop server, server already stopped!");
+            CoreServer.getLogger().debug("Server already stopped!");
             return true;
         }
 
-        // Stop the session acceptor
-        this.clientAcceptor.stop();
+        // Disconnect all clients
+        this.conMan.disconnectAll(DisconnectReason.SERVER_SHUTDOWN);
+
+        // Stop the client acceptor
+        this.clientAcceptor.stop(wait);
 
         // TODO: Disconnect all connected clients
         // TODO: Stop all server (socket) listener threads
@@ -106,18 +123,29 @@ public class ServerController {
     }
 
     /**
-     * Get the session manager instance
-     * @return Session manager instance
+     * Get the session manager instance.
+     *
+     * @return Session manager instance.
      */
     public SessionManager getSessionManager() {
         return this.sessionManager;
     }
 
     /**
-     * Get the session acceptor instance
-     * @return Client acceptor instance
+     * Get the session acceptor instance.
+     *
+     * @return Client acceptor instance.
      */
     public ClientAcceptor getClientAcceptor() {
         return this.clientAcceptor;
+    }
+
+    /**
+     * Get the connection manager instance.
+     *
+     * @return Connection manager instance.
+     */
+    public ConnectionManager getConnectionManager() {
+        return this.conMan;
     }
 }

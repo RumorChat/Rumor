@@ -1,5 +1,6 @@
 package com.timvisee.rumor.server.connection.session;
 
+import com.timvisee.rumor.server.DisconnectReason;
 import com.timvisee.rumor.server.connection.Connection;
 
 public class Session {
@@ -27,12 +28,15 @@ public class Session {
     /**
      * Disconnect the session
      *
+     * @param reason Disconnection reason.
+     *
      * @return True if the session was disconnected successfully, false otherwise.
      * Also returns true if the session was disconnected already.
      */
-    public boolean disconnect() {
+    public boolean disconnect(DisconnectReason reason) {
         // Disconnect the connector
-        this.con.disconnect();
+        if(this.con.isConnected())
+            this.con.disconnect(reason);
 
         // TODO: Make sure to remove the session from the session manager!
 

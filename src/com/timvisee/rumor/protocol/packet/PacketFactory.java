@@ -1,9 +1,13 @@
 package com.timvisee.rumor.protocol.packet;
 
+import com.timvisee.rumor.server.DisconnectReason;
+
 public class PacketFactory {
 
-    public static Packet createDisconnectPacket() {
-        return new Packet(PacketType.DISCONNECT);
+    public static Packet createDisconnectPacket(DisconnectReason reason) {
+        Packet p = new Packet(PacketType.DISCONNECT);
+        p.appendInteger(reason.id());
+        return p;
     }
 
     public static Packet createHeartbeatPacket() {

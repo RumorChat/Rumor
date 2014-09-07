@@ -1,5 +1,9 @@
 package com.timvisee.rumor.server.connection;
 
+import com.timvisee.rumor.Core;
+import com.timvisee.rumor.server.CoreServer;
+import com.timvisee.rumor.server.DisconnectReason;
+
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,5 +64,47 @@ public class ConnectionManager {
      */
     public int getConnectionCount() {
         return this.cons.size();
+    }
+
+    /**
+     * Disconnect and remove a connection.
+     *
+     * @param con The connection to disconnect.
+     *
+     * @return True on success, false on failure. False wills be returned if the connection was unknown.
+     */
+    public boolean disconnect(Connection con, DisconnectReason reason) {
+        // Make sure the connection isn't null
+        if(con == null)
+            return false;
+
+        // Disconnect the connection
+        if(con.isConnected())
+            con.disconnect(reason);
+
+        // Remove the connection from the list
+        this.cons.remove(con);
+
+        // Remove this connection from the new client and session manager
+        CoreServer.instance.getServerController().getClientAcceptor().getNewClientManager().removeNewClient(con);
+        CoreServer.instance.getServerController().getSessionManager().removeSession(con);
+        return true;
+    }
+
+    /**
+     * Disconnect all clients
+     *
+     * @param reason Disconnect reason
+     */
+    public void disconnectAll(DisconnectReason reason) {
+        // Show a status message
+        Core.getLogger().debug("Disconnecting " + getConnectionCount() + " clients...");
+
+        // Disconnect all clients
+        while(this.cons.size() > 0)
+            this.cons.get(0).disconnect(reason);
+
+        // Show a status message
+        Core.getLogger().debug("All clients disconnected!");
     }
 }
