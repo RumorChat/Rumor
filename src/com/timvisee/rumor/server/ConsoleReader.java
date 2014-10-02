@@ -24,7 +24,6 @@ public class ConsoleReader {
             public void run() {
                 while(true) {
                     BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
-                    System.out.print("> ");
                     String in = null;
                     try {
                         in = bf.readLine();

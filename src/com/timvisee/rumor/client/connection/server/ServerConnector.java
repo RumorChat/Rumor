@@ -6,6 +6,7 @@ import com.timvisee.rumor.protocol.packet.Packet;
 import com.timvisee.rumor.protocol.packet.PacketFactory;
 import com.timvisee.rumor.protocol.packet.PacketHandler;
 import com.timvisee.rumor.protocol.packet.PacketListener;
+import com.timvisee.rumor.protocol.packet.exception.MalformedPacketException;
 import com.timvisee.rumor.util.Profiler;
 import com.timvisee.rumor.client.CoreClient;
 
@@ -102,6 +103,9 @@ public class ServerConnector {
                 public void onPacketReceived(Packet p) {
                     //CoreClient.getLogger().info(p.getStrings().get(0));
                 }
+
+                @Override
+                public void onMalformedPacketReceived(String data) { }
             });
 
             // Send a handshake packet
@@ -123,8 +127,11 @@ public class ServerConnector {
                             while(bis.available() > 0)
                                 ph.received(bis.read());
 
-                        } catch(IOException e) {
-                            e.printStackTrace();
+                        } catch(MalformedPacketException ex) {
+                            ex.printStackTrace();
+
+                        } catch(IOException ex) {
+                            ex.printStackTrace();
                         }
                     }
                 }

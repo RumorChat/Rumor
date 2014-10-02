@@ -1,13 +1,12 @@
 package com.timvisee.rumor.server;
 
-/**
- * Created by Tim on 7-9-14.
- */
 public enum DisconnectReason {
 
     UNKNOWN(0),
     SERVER_SHUTDOWN(10),
-    CONNECTION_TIMEOUT(20);
+    CONNECTION_TIMEOUT(20),
+    AUTH_TIMEOUT(30),
+    TOO_MANY_MALFORMED_PACKETS(40);
 
     /** Disconnect reason type ID */
     private final int id;

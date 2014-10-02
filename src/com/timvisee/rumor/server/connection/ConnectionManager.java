@@ -45,6 +45,10 @@ public class ConnectionManager {
      * @return True on success, false on failure.
      */
     public boolean addConnection(Connection c) {
+        // Client connected, show a status message
+        CoreServer.getLogger().info("Client connected from " + c.getSocket().getInetAddress().getHostAddress() + "!");
+
+        // Add the connection, return the result
         return this.cons.add(c);
     }
 
@@ -86,7 +90,7 @@ public class ConnectionManager {
         this.cons.remove(con);
 
         // Remove this connection from the new client and session manager
-        CoreServer.instance.getServerController().getClientAcceptor().getNewClientManager().removeNewClient(con);
+        CoreServer.instance.getServerController().getClientAuthenticator().removeAuthClient(con);
         CoreServer.instance.getServerController().getSessionManager().removeSession(con);
         return true;
     }

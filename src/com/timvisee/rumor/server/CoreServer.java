@@ -2,7 +2,6 @@ package com.timvisee.rumor.server;
 
 import com.timvisee.rumor.Core;
 import com.timvisee.rumor.Defaults;
-import com.timvisee.rumor.server.connection.ConnectionManager;
 import com.timvisee.rumor.util.Profiler;
 
 public class CoreServer extends Core {

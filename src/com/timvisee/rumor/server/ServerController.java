@@ -1,19 +1,22 @@
 package com.timvisee.rumor.server;
 
 import com.timvisee.rumor.Defaults;
-import com.timvisee.rumor.server.connection.ClientAcceptor;
+import com.timvisee.rumor.server.connection.acceptor.ClientAcceptor;
 import com.timvisee.rumor.server.connection.ConnectionManager;
+import com.timvisee.rumor.server.connection.authenticator.ClientAuthenticator;
 import com.timvisee.rumor.server.connection.session.SessionManager;
 import com.timvisee.rumor.util.Profiler;
 
 public class ServerController {
 
-    /** Session manager instance. */
-    private SessionManager sessionManager;
-    /** Client acceptor instance */
-    private ClientAcceptor clientAcceptor;
     /** Connection manager instance */
     public ConnectionManager conMan;
+    /** Client acceptor instance */
+    private ClientAcceptor clientAcceptor;
+    /** Client authenticator instance */
+    private ClientAuthenticator clientAuth;
+    /** Session manager instance. */
+    private SessionManager sessionManager;
 
     /**
      * Constructor.
@@ -57,11 +60,14 @@ public class ServerController {
         // Starting server, show a status message
         CoreServer.getLogger().info("Starting " + Defaults.APP_NAME + " server...");
 
+        // Set up the client authenticator
+        this.clientAuth = new ClientAuthenticator();
+
         // Set up the session manager
         this.sessionManager = new SessionManager();
 
         // Set up the session acceptor and start accepting clients
-        this.clientAcceptor = new ClientAcceptor(this.sessionManager);
+        this.clientAcceptor = new ClientAcceptor();
         if(!this.clientAcceptor.start()) {
             // Stop the server start profiler
             serverProf.stop();
@@ -115,20 +121,14 @@ public class ServerController {
         // Stop the client acceptor
         this.clientAcceptor.stop(wait);
 
+        // Stop the client authenticator
+        this.clientAuth.stop(wait);
+
         // TODO: Disconnect all connected clients
         // TODO: Stop all server (socket) listener threads
 
         // Return true if the server is successfully stopped
         return !isStarted();
-    }
-
-    /**
-     * Get the session manager instance.
-     *
-     * @return Session manager instance.
-     */
-    public SessionManager getSessionManager() {
-        return this.sessionManager;
     }
 
     /**
@@ -147,5 +147,23 @@ public class ServerController {
      */
     public ConnectionManager getConnectionManager() {
         return this.conMan;
+    }
+
+    /**
+     * Get the client authenticator instance.
+     *
+     * @return The client authenticator instance.
+     */
+    public ClientAuthenticator getClientAuthenticator() {
+        return this.clientAuth;
+    }
+
+    /**
+     * Get the session manager instance.
+     *
+     * @return Session manager instance.
+     */
+    public SessionManager getSessionManager() {
+        return this.sessionManager;
     }
 }

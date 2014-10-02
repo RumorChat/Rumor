@@ -1,12 +1,16 @@
-package com.timvisee.rumor.server.connection.newclient;
+package com.timvisee.rumor.server.connection.authenticator;
 
 import com.timvisee.rumor.Core;
 import com.timvisee.rumor.protocol.packet.*;
+import com.timvisee.rumor.server.CoreServer;
 import com.timvisee.rumor.server.DisconnectReason;
 import com.timvisee.rumor.server.connection.Connection;
 
-public class NewClient {
+public class AuthenticatingClient {
 
+    private static final int MAX_MALFORMED_PACKET_COUNT = 5;
+
+    /** Connection instance of the client */
     private Connection con;
 
     // TODO: Use a time class with better support!
@@ -15,18 +19,25 @@ public class NewClient {
     private long clientInfoAt = -1;
     private long authAt = -1;
 
+    /** Packet listener, which listens and processes for authentication packets */
+    private PacketListener packetListener;
+
+    private int malformedCount = 0;
+
     /**
      * Constructor
      *
-     * @param con Client connection
+     * @param c Client's connection instance
      */
-    public NewClient(Connection con) {
-        this.con = con;
+    public AuthenticatingClient(Connection c) {
+        // Set the connection instance of the client
+        this.con = c;
 
-        // Set the time the new client was constructed
+        // Set the time the authenticating client was constructed
         this.connectedAt = System.currentTimeMillis();
 
-        PacketListener l = new PacketListener() {
+        // Set up a packet listener which listens and processes authentication packets
+        this.packetListener = new PacketListener() {
             @Override
             public void onPacketReceived(Packet p) {
                 if(p.isPacketType(PacketType.HANDSHAKE)) {
@@ -52,13 +63,21 @@ public class NewClient {
 
                     getConnection().sendPacket(PacketFactory.createAuthenticationResultPacket(false));
                 }
+            }
 
-                Core.getLogger().debug("[CLIENT STATUS] Handshaked: " + Boolean.toString(hasHandshaked()));
-                Core.getLogger().debug("[CLIENT STATUS] Client Info: " + Boolean.toString(hasClientInfoReceived()));
-                Core.getLogger().debug("[CLIENT STATUS] Authenticated: " + Boolean.toString(hasAuthenticated()));
+            @Override
+            public void onMalformedPacketReceived(String data) {
+                // Increase the count of received malformed packets
+                malformedCount++;
+
+                // Make sure the maximum amount of malformed packets isn't reached
+                if(getMalformedPacketCount() > MAX_MALFORMED_PACKET_COUNT) {
+                    Core.getLogger().warning("Kicked client, received too many malformed packets!");
+                    CoreServer.instance.getServerController().getConnectionManager().disconnect(con, DisconnectReason.TOO_MANY_MALFORMED_PACKETS);
+                }
             }
         };
-        this.con.addPacketListener(l);
+        this.con.addPacketListener(this.packetListener);
     }
 
     /**
@@ -180,13 +199,52 @@ public class NewClient {
     }
 
     /**
-     * Disconnect the client.
+     * Get the number of received malformed packets from this client.
      *
-     * @param reason Reason of disconnection.
+     * @return Number of received malformed packets.
+     */
+    public int getMalformedPacketCount() {
+        return this.malformedCount;
+    }
+
+    /**
+     * Disconnect the client and destroy the authenticating client.
+     *
+     * @param reason Reason of disconnecting.
      *
      * @return True on success, false on failure.
      */
     public boolean disconnect(DisconnectReason reason) {
-        return this.con.disconnect(reason);
+        // Disconnect the client
+        if(!this.con.disconnect(reason))
+            return false;
+
+        // Destroy the authenticating client, return the result
+        return destroy();
+    }
+
+    /**
+     * Check whether this authenticating client equals an other authenticating client.
+     *
+     * @param other The authenticating client to equal to.
+     *
+     * @return True if the authenticating clients are equal.
+     */
+    public boolean equals(AuthenticatingClient other) {
+        return this.con.equals(other.getConnection());
+    }
+
+    /**
+     * Destroy the authenticating client. This will unregister the packet listener.
+     * This method should be called when this object is being destroyed.
+     *
+     * @return True on success, false on failure.
+     */
+    public boolean destroy() {
+        // Remove the packet listener
+        this.con.removePacketListener(this.packetListener);
+
+        // Everything seems to be fine, return true
+        return true;
     }
 }

@@ -5,6 +5,7 @@ import com.timvisee.rumor.protocol.packet.Packet;
 import com.timvisee.rumor.protocol.packet.PacketFactory;
 import com.timvisee.rumor.protocol.packet.PacketListener;
 import com.timvisee.rumor.protocol.packet.ServerPacketHandler;
+import com.timvisee.rumor.protocol.packet.exception.MalformedPacketException;
 import com.timvisee.rumor.server.CoreServer;
 import com.timvisee.rumor.server.DisconnectReason;
 
@@ -67,7 +68,7 @@ public class Connection {
             @Override
             public void run() {
                 try {
-                    while(true) {
+                    while(!disconnected) {
                         // Store any received packet
                         Packet p = null;
 
@@ -75,6 +76,19 @@ public class Connection {
                         try {
                             while(getBufferedInputStream().available() > 0 && p == null)
                                 p = getPacketHandler().received(getBufferedInputStream().read());
+
+                        } catch(MalformedPacketException e) {
+                            // Malformed packet received, show a status message
+                            Core.getLogger().debug("Received malformed packet: " + e.getPacketData());
+
+                            // Call all packet listeners
+                            for(int i = 0; i < getPacketListeners().size(); i++) {
+                                PacketListener pl = getPacketListeners().get(i);
+
+                                // TODO: Pass the malformed data into this method!
+                                pl.onMalformedPacketReceived("");
+                            }
+                            continue;
 
                         } catch(IOException e) {
                             e.printStackTrace();
@@ -182,11 +196,19 @@ public class Connection {
         sendPacket(PacketFactory.createDisconnectPacket(reason));
         disconnected = true;
 
+        // Close the socket
+        // TODO: Close the socket properly!
+        try {
+            getSocket().close();
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+
         // Remove the connection from the connection manager
         CoreServer.instance.getServerController().getConnectionManager().disconnect(this, reason);
 
         // Show a status message, return the result
-        Core.getLogger().info("Client disconnected!");
+        Core.getLogger().info("Client from " + getSocket().getInetAddress().getHostAddress() + " disconnected, reason: " + reason.name() + "!");
         return true;
     }
 

@@ -1,6 +1,8 @@
 package com.timvisee.rumor.protocol;
 
+import com.timvisee.rumor.Core;
 import com.timvisee.rumor.protocol.packet.Packet;
+import com.timvisee.rumor.protocol.packet.exception.MalformedPacketException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -55,7 +57,7 @@ public class Protocol {
         return packet.toJSONString() + "\n";
     }
 
-    public static Packet deserialize(String str) {
+    public static Packet deserialize(String str) throws MalformedPacketException {
         // Instantiate the parser
         JSONParser parser = new JSONParser();
 
@@ -100,8 +102,17 @@ public class Protocol {
             // Return the packet
             return p;
 
+        } catch(ParseException e) {
+            // Show a malformed packet exception
+            throw new MalformedPacketException(str);
+
+            // TODO: Catch exceptions and errors for malformed packets. These may occur with HTTP GET requests.
+
         } catch(Exception e) {
             e.printStackTrace();
+
+            // TODO: Catch exceptions and errors for malformed packets. These may occur with HTTP GET requests.
+
             return null;
         }
     }

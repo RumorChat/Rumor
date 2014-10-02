@@ -1,10 +1,9 @@
-package com.timvisee.rumor.server.connection;
+package com.timvisee.rumor.server.connection.acceptor;
 
 import com.timvisee.rumor.Core;
 import com.timvisee.rumor.Defaults;
 import com.timvisee.rumor.server.CoreServer;
-import com.timvisee.rumor.server.connection.newclient.NewClientManager;
-import com.timvisee.rumor.server.connection.session.SessionManager;
+import com.timvisee.rumor.server.connection.Connection;
 
 import java.io.IOException;
 import java.net.BindException;
@@ -14,16 +13,10 @@ import java.net.SocketTimeoutException;
 
 public class ClientAcceptor {
 
-    /** Session manager instance. */
-    private SessionManager sessionMan;
-
     /** Server socket instance, which is used to accept all connections on. */
     private ServerSocket server;
 
-    /** New client manager instance */
-    private NewClientManager newClientMan;
-
-    /** Connection acceptance thread instance. */
+    /** Connection acceptor thread instance. */
     private Thread acceptorThread;
 
     /** The time in milliseconds the server socket listener times out */
@@ -31,35 +24,12 @@ public class ClientAcceptor {
 
     /**
      * Constructor
-     * @param conMan Client manager instance
      */
-    public ClientAcceptor(SessionManager conMan) {
-        this.sessionMan = conMan;
-
-        // Set up the new client manager
-        this.newClientMan = new NewClientManager();
-    }
-
-    /**
-     * Get the session manager instance
-     *
-     * @return The session manager instance
-     */
-    public SessionManager getSessionManager() {
-        return this.sessionMan;
-    }
-
-    /**
-     * Get the new client manager instance
-     *
-     * @return The new client manager instance
-     */
-    public NewClientManager getNewClientManager() {
-        return this.newClientMan;
-    }
+    public ClientAcceptor() { }
 
     /**
      * Start the client acceptor
+     *
      * @return True if the acceptor has started, false otherwise. Also returns true if the acceptor was active already.
      */
     public boolean start() {
@@ -116,7 +86,7 @@ public class ClientAcceptor {
                             continue;
 
                         // Show a status message
-                        CoreServer.getLogger().debug("Accepting client from " + clientSock.getInetAddress().getHostAddress() + "...");
+                        CoreServer.getLogger().debug("Client connecting from " + clientSock.getInetAddress().getHostAddress() + "...");
 
                         // Add the socket as a connection
                         Connection con = CoreServer.instance.getServerController().getConnectionManager().addConnection(clientSock);
@@ -128,8 +98,8 @@ public class ClientAcceptor {
                             continue;
                         }
 
-                        // Add the new client
-                        newClientMan.addNewClient(con);
+                        // Create a new authenticating client
+                        CoreServer.instance.getServerController().getClientAuthenticator().createAuthClient(con);
 
                     } catch (IOException e) {
                         // Print the stack trace
@@ -205,9 +175,6 @@ public class ClientAcceptor {
             CoreServer.getLogger().error("An error occurred while stopping the client acceptance thread!");
             CoreServer.getLogger().error("ERROR: " + e.getMessage());
         }
-
-        // Stop the new client manager
-        this.newClientMan.stop(wait);
 
         // Close the server socket
         // TODO: Can we close this server socket while clients are connected?

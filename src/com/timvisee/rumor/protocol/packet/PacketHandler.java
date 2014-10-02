@@ -2,7 +2,7 @@ package com.timvisee.rumor.protocol.packet;
 
 import com.timvisee.rumor.Core;
 import com.timvisee.rumor.protocol.Protocol;
-import com.timvisee.rumor.server.connection.Connection;
+import com.timvisee.rumor.protocol.packet.exception.MalformedPacketException;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -11,20 +11,26 @@ import java.util.List;
 
 public class PacketHandler {
 
+    /** Packet listeners */
     private List<PacketListener> listeners = new ArrayList<PacketListener>();
 
     private boolean escapeNextChar = false;
     private boolean packetReceived = false;
     private StringBuilder buff = new StringBuilder();
 
+    /** The last received packet */
     private Packet lastReceived = null;
 
+    /**
+     * Constructor
+     */
     public PacketHandler() { }
 
     public static void send(OutputStreamWriter osw, Packet p) {
+        // Serialize the packet
         String data = Protocol.serialize(p);
 
-        Core.getLogger().debug("[SEND PACKET] " + Protocol.serialize(p));
+        Core.getLogger().debug("[SEND PACKET] " + data.replace("\n", ""));
 
         try {
             osw.write(data);
@@ -34,7 +40,7 @@ public class PacketHandler {
         }
     }
 
-    public Packet received(int c) {
+    public Packet received(int c) throws MalformedPacketException {
         /*if(c == ((char) '\\')) {
             escapeNextChar = true;
             buff.append((char) c);
@@ -52,18 +58,21 @@ public class PacketHandler {
             // Parse the received data as a string
             String data = buff.toString();
 
-            // Show a debug message containing the received data
-            Core.getLogger().debug("[Received Packet] " + data);
-
-            this.lastReceived = Protocol.deserialize(data);
             buff.setLength(0);
             escapeNextChar = false;
             packetReceived = false;
 
-            for(PacketListener pl : this.listeners)
-                pl.onPacketReceived(this.lastReceived);
+            try {
+                this.lastReceived = Protocol.deserialize(data);
 
-            return this.lastReceived;
+                for(PacketListener pl : this.listeners)
+                    pl.onPacketReceived(this.lastReceived);
+                return this.lastReceived;
+
+            } catch(MalformedPacketException ex) {
+                // Show a malformed packet exception
+                throw new MalformedPacketException(data);
+            }
         }
 
         buff.append((char) c);

@@ -2,9 +2,8 @@ package com.timvisee.rumor.server.connection.session;
 
 import com.timvisee.rumor.server.DisconnectReason;
 import com.timvisee.rumor.server.connection.Connection;
-import com.timvisee.rumor.server.connection.newclient.NewClient;
+import com.timvisee.rumor.server.connection.authenticator.AuthenticatingClient;
 
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,7 +63,7 @@ public class SessionManager {
      *
      * @return The session instance if a session was created successfully, null otherwise.
      */
-    public Session createSession(NewClient client) {
+    public Session createSession(AuthenticatingClient client) {
         return this.createSession(client.getConnection());
     }
 
