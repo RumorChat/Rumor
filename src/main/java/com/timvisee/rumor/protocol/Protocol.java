@@ -1,18 +1,15 @@
 package com.timvisee.rumor.protocol;
 
-import com.timvisee.rumor.Core;
 import com.timvisee.rumor.protocol.packet.Packet;
 import com.timvisee.rumor.protocol.packet.exception.MalformedPacketException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
 
 public class Protocol {
 
